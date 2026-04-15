@@ -1,26 +1,29 @@
-//editable config stuff
+// editable config stuff 
 
 if (window.mainColor == null) {
-  window.mainColor = parseInt(localStorage.getItem("iconMainColor") || "fb2651", 16);
+  window.mainColor = parseInt(localStorage.getItem("iconMainColor") || "04FF00", 16);
 }
 if (window.secondaryColor == null) {
-  window.secondaryColor = parseInt(localStorage.getItem("iconSecondaryColor") || "ffffff", 16);
+  window.secondaryColor = parseInt(localStorage.getItem("iconSecondaryColor") || "00FBFF", 16);
 }
-window.currentPlayer = localStorage.getItem("iconCurrentPlayer") || "player_42";
-window.currentShip   = localStorage.getItem("iconCurrentShip")   || "ship_44";
-window.currentBall   = localStorage.getItem("iconCurrentBall")   || "player_ball_23";
+window.currentPlayer = localStorage.getItem("iconCurrentPlayer") || "player_01";
+window.currentShip   = localStorage.getItem("iconCurrentShip")   || "ship_01";
+window.currentBall   = localStorage.getItem("iconCurrentBall")   || "player_ball_01";
 window.currentWave   = localStorage.getItem("iconCurrentWave")   || "dart_01";
 window.currentlevel = [
-  "stereo_madness",
-  "Stereo Madness",
-  "level_1",
-  "Forever Bound"
+	"stereo_madness", // internal level name
+	"Stereo Madness", // proper level name
+	"level_1",        // level id in assets/levels
+	"Forever Bound"   // person who made the song
 ];
 window.showHitboxes = false;
-window.noClip = false;
+window.noClip = false; // experimental
 window.orbClickScale = 2.0;
 window.orbClickShrinkTime = 250;
 window.orbParticleSize = 3.5;
+window.showPercentage = true;
+
+// -------------------------------
 
 function hexToHexadecimal(str) {
   return parseInt(str, 16);
@@ -506,11 +509,13 @@ function parseLevel(levelString) {
       objects.push(object);
     }
   }
+  console.log(settings)
   return {
     settings: settings,
     objects: objects
   };
 }
+// from https://github.com/opstic/gdclone/blob/main/src/level/easing.rs
 class Easing {
   static sample(type, rate, x) {
     if (x === 0 || x === 1) return x;
@@ -622,18 +627,6 @@ class us {
     this._orbSprites = [];
     this._coinSprites = [];
     this._sawSprites = [];
-    this._channelSprites = {};
-    this._opacityTriggers = [];
-    this._opacityTriggerIdx = 0;
-    this._activeOpacityTweens = [];
-    this._toggleTriggers = [];
-    this._toggleTriggerIdx = 0;
-    this._pulseTriggers = [];
-    this._pulseTriggerIdx = 0;
-    this._activePulses = [];
-    this._rotateTriggers = [];
-    this._rotateTriggerIdx = 0;
-    this._activeRotations = [];
     this._enterEffectTriggers = [];
     this._enterEffectTriggerIdx = 0;
     this._activeEnterEffect = 0;
@@ -664,8 +657,6 @@ class us {
   }
   _setUpSettings(settingsStr) {
     this._initialColors = {};
-    window._blendChannels = {};
-    this._playerCopyChannels = {};
     this._backgroundId = null;
     this._groundId = null;
     if (!settingsStr) return;
@@ -675,6 +666,7 @@ class us {
       settingsMap[pairs[i]] = pairs[i + 1];
     }
     let colorStr = settingsMap["kS38"];
+    console.log(settingsMap)
     window._backgroundId = settingsMap["kA6"] ? settingsMap["kA6"] : "01";
     if (window._backgroundId.length < 2) {
       window._backgroundId = "0"+window._backgroundId;
@@ -699,13 +691,6 @@ class us {
             g: parseInt(colorProps[2] || "255", 10),
             b: parseInt(colorProps[3] || "255", 10)
           };
-          if (colorProps[5] === "1") {
-            window._blendChannels[channelId] = true;
-          }
-          let copyTarget = parseInt(colorProps[4] || "0", 10);
-          if (copyTarget > 0) {
-            this._playerCopyChannels[channelId] = copyTarget;
-          }
         }
       }
     }
@@ -730,11 +715,13 @@ class us {
       let col = parseColorEntry(settingsMap["kS30"]);
       if (col) this._initialColors[1001] = col;
     }
+    console.log("level colors:", JSON.stringify(this._initialColors));
   }
   _buildGround() {
     const _0x73ae12 = this._scene;
     window._groundId = window._groundId ? window._groundId : "01";
     
+      console.log(window._groundId)
     const _0x3bff90 = _0x73ae12.textures.getFrame("groundSquare_" + window._groundId + "_001.png");
     this._tileW = _0x3bff90 ? _0x3bff90.width : 1012;
     this._groundTiles = [];
@@ -780,6 +767,7 @@ class us {
     const _0x4f87d5 = b(0);
     while (this._groundTiles.length < _0x546bad) {
       const _0x596be1 = this._maxGroundWorldX + _0x495be2;
+      console.log(window._groundId)
       let _0x32bd97 = _0x1f0ac2.add.image(0, _0x4f87d5, "groundSquare_" + window._groundId + "_001.png");
       _0x32bd97.setOrigin(0, 0).setTint(((_0xdc60af = this._groundTiles[0]) == null ? undefined : _0xdc60af.tintTopLeft) || 17578).setDepth(20);
       _0x32bd97._worldX = _0x596be1;
@@ -1096,67 +1084,6 @@ class us {
             tintGround: _0x1b937f._raw[14] === "1"
           });
         }
-        if (_0x1b937f.id === 899 || _0x1b937f.id === 105 || _0x1b937f.id === 104) {
-          let _targetChannel = parseInt(_0x1b937f._raw[23] ?? 0, 10);
-          if (_0x1b937f.id === 105 && _targetChannel === 0) _targetChannel = 1004;
-          if (_0x1b937f.id === 104 && _targetChannel === 0) _targetChannel = 1002;
-          if (_targetChannel > 0) {
-            this._colorTriggers.push({
-              x: _0x1b937f.x * 2,
-              index: _targetChannel,
-              color: {
-                r: parseInt(_0x1b937f._raw[7] ?? 255, 10),
-                g: parseInt(_0x1b937f._raw[8] ?? 255, 10),
-                b: parseInt(_0x1b937f._raw[9] ?? 255, 10)
-              },
-              duration: parseFloat(_0x1b937f._raw[10] ?? 0),
-              tintGround: false
-            });
-          }
-        }
-        if (_0x1b937f.id === 1007) {
-          const _raw = _0x1b937f._raw;
-          this._opacityTriggers.push({
-            x: _0x1b937f.x * 2,
-            targetGroup: parseInt(_raw[51] ?? 0, 10),
-            opacity: parseFloat(_raw[35] ?? 1),
-            duration: parseFloat(_raw[10] ?? 0),
-          });
-        }
-        if (_0x1b937f.id === 1049) {
-          const _raw = _0x1b937f._raw;
-          this._toggleTriggers.push({
-            x: _0x1b937f.x * 2,
-            targetGroup: parseInt(_raw[51] ?? 0, 10),
-            activate: _raw[56] !== "1"
-          });
-        }
-        if (_0x1b937f.id === 1006) {
-          const _raw = _0x1b937f._raw;
-          this._pulseTriggers.push({
-            x: _0x1b937f.x * 2,
-            targetChannel: parseInt(_raw[51] ?? 0, 10),
-            isGroup: _raw[52] === "1",
-            r: parseInt(_raw[7] ?? 255, 10),
-            g: parseInt(_raw[8] ?? 255, 10),
-            b: parseInt(_raw[9] ?? 255, 10),
-            fadeIn: parseFloat(_raw[45] ?? 0),
-            hold: parseFloat(_raw[46] ?? 0),
-            fadeOut: parseFloat(_raw[47] ?? 0),
-            exclusive: _raw[86] === "1"
-          });
-        }
-        if (_0x1b937f.id === 1346) {
-          const _raw = _0x1b937f._raw;
-          this._rotateTriggers.push({
-            x: _0x1b937f.x * 2,
-            targetGroup: parseInt(_raw[51] ?? 0, 10),
-            degrees: parseFloat(_raw[68] ?? 0),
-            duration: parseFloat(_raw[10] ?? 0),
-            easingType: parseInt(_raw[30] ?? 0, 10),
-            lockRotation: _raw[70] === "1"
-          });
-        }
         if (_0x24471f.enterEffect) {
           this._enterEffectTriggers.push({
             x: _0x1b937f.x * 2,
@@ -1214,25 +1141,10 @@ class us {
         let _0x554e0e = L(_0xd15974, _0x2ddc05, _0x1b10a0, _0x4c7589);
         if (_0x554e0e) {
           this._applyVisualProps(_0xd15974, _0x554e0e, _0x4c7589, _0x1b937f, _0x24471f);
-          let _zLayer = _0x1b937f.zLayer || (_0x24471f ? _0x24471f.default_z_layer : 0) || 0;
-          let _zOrder = _0x1b937f.zOrder || (_0x24471f ? _0x24471f.default_z_order : 0) || 0;
-          _0x554e0e.setDepth(_zLayer * 100 + _zOrder);
           this._addVisualSprite(_0x554e0e, _0x36f679);
           _0x554e0e._eeWorldX = _0x173c58;
           _0x554e0e._eeBaseY = _0x1b10a0;
           this._addToSection(_0x554e0e);
-          let _baseChannel = _0x1b937f.color1 || (_0x24471f ? _0x24471f.default_base_color_channel : 0);
-          if (_baseChannel && _baseChannel > 0 && _0x24471f.can_color && !_0x554e0e._isSaw) {
-            if (!this._channelSprites[_baseChannel]) this._channelSprites[_baseChannel] = [];
-            this._channelSprites[_baseChannel].push(_0x554e0e);
-            _0x554e0e._eeColorChannel = _baseChannel;
-            if (window._blendChannels && window._blendChannels[_baseChannel]) {
-              _0x554e0e.setBlendMode(S);
-            }
-          }
-          if (_0x1b937f._raw && _0x1b937f._raw[17] === "1") {
-            _0x554e0e.setBlendMode(S);
-          }
           if (_0x1b937f.groups) {
             const _gids = _0x1b937f.groups.split('.').map(Number).filter(n => n > 0);
             _0x554e0e._eeGroups = _gids;
@@ -1266,15 +1178,14 @@ class us {
             _0x554e0e._coinBaseScale = _0x554e0e.scaleX || 1;
             this._coinSprites.push(_0x554e0e);
           }
-          if (_0x4c7589 && (_0x4c7589.indexOf("sawblade") >= 0 || _0x4c7589.indexOf("cogwheel") >= 0 || _0x4c7589.indexOf("spinBlade") >= 0)) {
-            let _isSawBlade = _0x4c7589.indexOf("sawblade") >= 0;
-            if (_isSawBlade) _0x554e0e.setTint(0x000000);
+          if (_0x4c7589 && _0x4c7589.indexOf("sawblade") >= 0) {
+            _0x554e0e.setTint(0x000000);
             _0x554e0e._isSaw = true;
             this._sawSprites.push(_0x554e0e);
             let _sawMirror = L(_0xd15974, _0x2ddc05, _0x1b10a0, _0x4c7589);
             if (_sawMirror) {
               this._applyVisualProps(_0xd15974, _sawMirror, _0x4c7589, _0x1b937f, _0x24471f);
-              if (_isSawBlade) _sawMirror.setTint(0x000000);
+              _sawMirror.setTint(0x000000);
               _sawMirror.rotation = _0x554e0e.rotation + Math.PI;
               _sawMirror._isSaw = true;
               _sawMirror._eeWorldX = _0x173c58;
@@ -1296,21 +1207,10 @@ class us {
             _0xe3eaec._eeWorldX = _0x173c58;
             _0xe3eaec._eeBaseY = _0x1b10a0;
             this._addToSection(_0xe3eaec);
-            let _detailChannel = _0x1b937f.color2 || (_0x24471f ? _0x24471f.default_detail_color_channel : 0);
-            if (_detailChannel && _detailChannel > 0) {
-              if (!this._channelSprites[_detailChannel]) this._channelSprites[_detailChannel] = [];
-              this._channelSprites[_detailChannel].push(_0xe3eaec);
-              _0xe3eaec._eeColorChannel = _detailChannel;
-              if (window._blendChannels[_detailChannel]) {
-                _0xe3eaec.setBlendMode(S);
-              }
-            }
           }
         }
         if (_0x24471f.children) {
           for (let _0x2ca803 of _0x24471f.children) {
-            let _childFrame = _0x2ca803.frame || _0x2ca803.texture;
-            if (!_childFrame) continue;
             let _0x3b4e8c = _0x2ca803.dx || 0;
             let _0x172131 = _0x2ca803.dy || 0;
             if (_0x2ca803.localDx !== undefined || _0x2ca803.localDy !== undefined) {
@@ -1325,23 +1225,10 @@ class us {
               let _0x3e62f2 = (_0x1b937f.rot || 0) * Math.PI / 180;
               _0x3b4e8c = _0x38902b * Math.cos(_0x3e62f2) - _0x256a8e * Math.sin(_0x3e62f2);
               _0x172131 = _0x38902b * Math.sin(_0x3e62f2) + _0x256a8e * Math.cos(_0x3e62f2);
-            } else if (_0x2ca803.x !== undefined || _0x2ca803.y !== undefined) {
-              let _cx = (_0x2ca803.x || 0) * 2;
-              let _cy = -(_0x2ca803.y || 0) * 2;
-              if (_0x1b937f.flipX) _cx = -_cx;
-              if (_0x1b937f.flipY) _cy = -_cy;
-              let _0x3e62f2 = (_0x1b937f.rot || 0) * Math.PI / 180;
-              _0x3b4e8c = _cx * Math.cos(_0x3e62f2) - _cy * Math.sin(_0x3e62f2);
-              _0x172131 = _cx * Math.sin(_0x3e62f2) + _cy * Math.cos(_0x3e62f2);
             }
-            let _0x42173e = L(_0xd15974, _0x2ddc05 + _0x3b4e8c, _0x1b10a0 + _0x172131, _childFrame);
+            let _0x42173e = L(_0xd15974, _0x2ddc05 + _0x3b4e8c, _0x1b10a0 + _0x172131, _0x2ca803.frame);
             if (_0x42173e) {
-              this._applyVisualProps(_0xd15974, _0x42173e, _childFrame, _0x1b937f, _0x2ca803);
-              if (_0x2ca803.flip_x) _0x42173e.setFlipX(!_0x42173e.flipX);
-              if (_0x2ca803.flip_y) _0x42173e.setFlipY(!_0x42173e.flipY);
-              if (_0x2ca803.scale_x !== undefined && _0x2ca803.scale_x !== 1) {
-                _0x42173e.setScale(_0x42173e.scaleX * _0x2ca803.scale_x, _0x42173e.scaleY * (_0x2ca803.scale_y || 1));
-              }
+              this._applyVisualProps(_0xd15974, _0x42173e, _0x2ca803.frame, _0x1b937f, _0x2ca803);
               if (_0x2ca803.audioScale) {
                 _0x42173e.setScale(0.1);
                 _0x42173e.setAlpha(0.9);
@@ -1357,29 +1244,14 @@ class us {
               _0x42173e._eeWorldX = _0x173c58 + _0x3b4e8c;
               _0x42173e._eeBaseY = _0x1b10a0 + _0x172131;
               this._addToSection(_0x42173e);
-              let _childChannel = 0;
-              if (_0x2ca803.color_type === "Detail") {
-                _childChannel = _0x1b937f.color2 || (_0x24471f ? _0x24471f.default_detail_color_channel : 0);
-              } else if (_0x2ca803.color_type === "Base") {
-                _childChannel = _0x1b937f.color1 || (_0x24471f ? _0x24471f.default_base_color_channel : 0);
-              }
-              if (_childChannel && _childChannel > 0) {
-                if (!this._channelSprites[_childChannel]) this._channelSprites[_childChannel] = [];
-                this._channelSprites[_childChannel].push(_0x42173e);
-                _0x42173e._eeColorChannel = _childChannel;
-                if (window._blendChannels && window._blendChannels[_childChannel]) {
-                  _0x42173e.setBlendMode(S);
-                }
-              }
-              if (_0x4c7589 && (_0x4c7589.indexOf("sawblade") >= 0 || _0x4c7589.indexOf("cogwheel") >= 0 || _0x4c7589.indexOf("spinBlade") >= 0)) {
-                let _isChildSaw = _0x4c7589.indexOf("sawblade") >= 0;
-                if (_isChildSaw) _0x42173e.setTint(0x000000);
+              if (_0x4c7589 && _0x4c7589.indexOf("sawblade") >= 0) {
+                _0x42173e.setTint(0x000000);
                 _0x42173e._isSaw = true;
                 this._sawSprites.push(_0x42173e);
-                let _childMirror = L(_0xd15974, _0x2ddc05 + _0x3b4e8c, _0x1b10a0 + _0x172131, _childFrame);
+                let _childMirror = L(_0xd15974, _0x2ddc05 + _0x3b4e8c, _0x1b10a0 + _0x172131, _0x2ca803.frame);
                 if (_childMirror) {
-                  this._applyVisualProps(_0xd15974, _childMirror, _childFrame, _0x1b937f, _0x2ca803);
-                  if (_isChildSaw) _childMirror.setTint(0x000000);
+                  this._applyVisualProps(_0xd15974, _childMirror, _0x2ca803.frame, _0x1b937f, _0x2ca803);
+                  _childMirror.setTint(0x000000);
                   _childMirror.rotation = _0x42173e.rotation + Math.PI;
                   _childMirror._isSaw = true;
                   _childMirror._eeWorldX = _0x173c58 + _0x3b4e8c;
@@ -1470,8 +1342,8 @@ class us {
           }
         };
         if (_0x24471f.type === solidType && _0x24471f.gridW > 0 && _0x24471f.gridH > 0) {
-          let _0x10e5ae = _0x24471f.hitbox ? _0x24471f.hitbox.width * 2 : _0x24471f.gridW * a;
-          let _0x11e08d = _0x24471f.hitbox ? _0x24471f.hitbox.height * 2 : _0x24471f.gridH * a;
+          let _0x10e5ae = _0x24471f.gridW * a;
+          let _0x11e08d = _0x24471f.gridH * a;
           let _0x4628ff = new Collider(solidType, _0x173c58, _0x7ab528, _0x10e5ae, _0x11e08d, _0x1b937f.rot || 0);
           _0x4628ff.objid = _0x1b937f.id;
           _registerCollider(_0x4628ff);
@@ -1480,10 +1352,7 @@ class us {
         } else if (_0x24471f.type === hazardType) {
           let _0x3f8c4f = 0;
           let _0x2a123d = 0;
-          if (_0x24471f.hitbox) {
-            _0x3f8c4f = _0x24471f.hitbox.width * 2;
-            _0x2a123d = _0x24471f.hitbox.height * 2;
-          } else if (_0x24471f.spriteW > 0 && _0x24471f.spriteH > 0 && _0x24471f.hitboxScaleX !== undefined && _0x24471f.hitboxScaleY !== undefined) {
+          if (_0x24471f.spriteW > 0 && _0x24471f.spriteH > 0 && _0x24471f.hitboxScaleX !== undefined && _0x24471f.hitboxScaleY !== undefined) {
             _0x3f8c4f = _0x24471f.spriteW * _0x24471f.hitboxScaleX * 2;
             _0x2a123d = _0x24471f.spriteH * _0x24471f.hitboxScaleY * 2;
           } else if (_0x24471f.gridW > 0 && _0x24471f.gridH > 0) {
@@ -1498,7 +1367,7 @@ class us {
           }
         } else if (_0x24471f.type === portalType) {
 
-          let _0xad0974 = 90;
+          let _0xad0974 = _0x24471f.gridW * a;
           let _0x2c2226 = _0x24471f.gridH * a;
           const _0x5bcd81 = _0x24471f.sub || {
             10: "gravity_flip",
@@ -1533,20 +1402,22 @@ class us {
             _registerCollider(_0x4bd7bc);
             this.objects.push(_0x4bd7bc);
             this._addCollisionToSection(_0x4bd7bc);
+            console.log("portal collision created: type=" + _0x25452a + " id=" + _0x1b937f.id + " x=" + _0x173c58 + " y=" + _0x7ab528 + " w=" + _0xad0974 + " h=" + _0x2c2226);
           } else {
             console.warn("portal ID " + _0x1b937f.id + " has no matching sub-type (sub=" + _0x24471f.sub + ")");
           }
         } else if (_0x24471f.type === padType) {
           let padW = _0x24471f.gridW * a;
-          let padH = Math.max(_0x24471f.gridH, 10);
+          let padH = _0x24471f.gridH * a;
           let padObj = new Collider(jumpPadType, _0x173c58, _0x7ab528, padW, padH, _0x1b937f.rot || 0);
           padObj.padId = _0x1b937f.id;
           _registerCollider(padObj);
           this.objects.push(padObj);
           this._addCollisionToSection(padObj);
+          console.log("pad collision created: id=" + _0x1b937f.id + " x=" + _0x173c58 + " y=" + _0x7ab528);
         } else if (_0x24471f.type === ringType) {
-          let orbW = _0x24471f.gridW * a * 0.8;
-          let orbH = _0x24471f.gridH * a * 0.8;
+          let orbW = _0x24471f.gridW * a;
+          let orbH = _0x24471f.gridH * a;
           let orbObj = new Collider(jumpRingType, _0x173c58, _0x7ab528, orbW, orbH, _0x1b937f.rot || 0);
           orbObj.orbId = _0x1b937f.id;
           orbObj.orbRotation = _0x1b937f.rot || 0;
@@ -1554,9 +1425,10 @@ class us {
           _registerCollider(orbObj);
           this.objects.push(orbObj);
           this._addCollisionToSection(orbObj);
+          console.log("orb collision created: id=" + _0x1b937f.id + " x=" + _0x173c58 + " y=" + _0x7ab528);
         } else if (_0x24471f.type === coinType) {
-          let coinW = (_0x24471f.gridW || 1) * a * 0.9;
-          let coinH = (_0x24471f.gridH || 1) * a * 0.9;
+          let coinW = (_0x24471f.gridW || 1) * a;
+          let coinH = (_0x24471f.gridH || 1) * a;
           let coinObj = new Collider(coinType, _0x173c58, _0x7ab528, coinW, coinH, _0x1b937f.rot || 0);
           coinObj.coinId = _0x1b937f.id;
           _registerCollider(coinObj);
@@ -1573,13 +1445,10 @@ class us {
     for (let obj of this.objects) {
       colTypeCounts[obj.type] = (colTypeCounts[obj.type] || 0) + 1;
     }
+    console.log("colision objects by type:", JSON.stringify(colTypeCounts));
     this._colorTriggers.sort((_0x359c7f, _0x28dd8b) => _0x359c7f.x - _0x28dd8b.x);
     this._enterEffectTriggers.sort((_0x3e43f2, _0x5e3d9a) => _0x3e43f2.x - _0x5e3d9a.x);
     this._moveTriggers.sort((a, b) => a.x - b.x);
-    this._opacityTriggers.sort((a, b) => a.x - b.x);
-    this._toggleTriggers.sort((a, b) => a.x - b.x);
-    this._pulseTriggers.sort((a, b) => a.x - b.x);
-    this._rotateTriggers.sort((a, b) => a.x - b.x);
     this.endXPos = Math.max(screenWidth + 1200, this._lastObjectX + 680);
   }
   createEndPortal(_0x41fbdb) {
@@ -1676,121 +1545,6 @@ class us {
   }
   resetColorTriggers() {
     this._colorTriggerIdx = 0;
-  }
-  checkOpacityTriggers(playerX) {
-    let triggered = [];
-    while (this._opacityTriggerIdx < this._opacityTriggers.length) {
-      let t = this._opacityTriggers[this._opacityTriggerIdx];
-      if (t.x > playerX) break;
-      triggered.push(t);
-      this._opacityTriggerIdx++;
-    }
-    return triggered;
-  }
-  resetOpacityTriggers() {
-    this._opacityTriggerIdx = 0;
-  }
-  checkToggleTriggers(playerX) {
-    let triggered = [];
-    while (this._toggleTriggerIdx < this._toggleTriggers.length) {
-      let t = this._toggleTriggers[this._toggleTriggerIdx];
-      if (t.x > playerX) break;
-      triggered.push(t);
-      this._toggleTriggerIdx++;
-    }
-    return triggered;
-  }
-  resetToggleTriggers() {
-    this._toggleTriggerIdx = 0;
-  }
-  checkPulseTriggers(playerX) {
-    let triggered = [];
-    while (this._pulseTriggerIdx < this._pulseTriggers.length) {
-      let t = this._pulseTriggers[this._pulseTriggerIdx];
-      if (t.x > playerX) break;
-      triggered.push(t);
-      this._pulseTriggerIdx++;
-    }
-    return triggered;
-  }
-  resetPulseTriggers() {
-    this._pulseTriggerIdx = 0;
-    this._activePulses = [];
-  }
-  checkRotateTriggers(playerX) {
-    let triggered = [];
-    while (this._rotateTriggerIdx < this._rotateTriggers.length) {
-      let t = this._rotateTriggers[this._rotateTriggerIdx];
-      if (t.x > playerX) break;
-      triggered.push(t);
-      this._rotateTriggerIdx++;
-    }
-    return triggered;
-  }
-  resetRotateTriggers() {
-    this._rotateTriggerIdx = 0;
-    this._activeRotations = [];
-  }
-  stepPulses(dt) {
-    for (let i = this._activePulses.length - 1; i >= 0; i--) {
-      let p = this._activePulses[i];
-      p.elapsed += dt;
-      let total = p.fadeIn + p.hold + p.fadeOut;
-      if (p.elapsed >= total) {
-        this._activePulses.splice(i, 1);
-        continue;
-      }
-      let t = 0;
-      if (p.elapsed < p.fadeIn) {
-        t = p.fadeIn > 0 ? p.elapsed / p.fadeIn : 1;
-      } else if (p.elapsed < p.fadeIn + p.hold) {
-        t = 1;
-      } else {
-        let fadeElapsed = p.elapsed - p.fadeIn - p.hold;
-        t = p.fadeOut > 0 ? 1 - fadeElapsed / p.fadeOut : 0;
-      }
-      t = Math.max(0, Math.min(1, t));
-      let sprites = p.isGroup ? (this._groupSprites[p.targetChannel] || []) : (this._channelSprites[p.targetChannel] || []);
-      let pr = Math.round(p.baseR + (p.r - p.baseR) * t);
-      let pg = Math.round(p.baseG + (p.g - p.baseG) * t);
-      let pb = Math.round(p.baseB + (p.b - p.baseB) * t);
-      let hex = (pr << 16) | (pg << 8) | pb;
-      for (let s of sprites) {
-        if (s && s.active) s.setTint(hex);
-      }
-    }
-  }
-  stepRotations(dt, scene) {
-    for (let i = this._activeRotations.length - 1; i >= 0; i--) {
-      let r = this._activeRotations[i];
-      r.elapsed += dt;
-      let t = r.duration > 0 ? Math.min(1, r.elapsed / r.duration) : 1;
-      let angle = r.startAngle + r.degrees * t;
-      let sprites = this._groupSprites[r.targetGroup] || [];
-      for (let s of sprites) {
-        if (s && s.active) s.setAngle(angle);
-      }
-      let colliders = this._groupColliders[r.targetGroup] || [];
-      for (let c of colliders) {
-        if (c) c.rotationDegrees = angle;
-      }
-      if (t >= 1) {
-        this._activeRotations.splice(i, 1);
-      }
-    }
-  }
-  applyChannelColors(colorManager) {
-    for (let channelId in this._channelSprites) {
-      let col = colorManager.getColor(parseInt(channelId, 10));
-      let hex = (col.r << 16) | (col.g << 8) | col.b;
-      let sprites = this._channelSprites[channelId];
-      for (let i = 0; i < sprites.length; i++) {
-        let s = sprites[i];
-        if (s && s.active && !s._isSaw) {
-          s.setTint(hex);
-        }
-      }
-    }
   }
   _addToSection(_0x4413d3) {
     const _0x4ac40a = Math.max(0, Math.floor(_0x4413d3._eeWorldX / 400));
@@ -2286,7 +2040,7 @@ class ps {
     this.rotateActionDuration = 0;
     this.rotateActionStart = 0;
     this.rotateActionTotal = 0;
-    this._showHitboxes = true;
+    this._showHitboxes = !!window.showHitboxes;
     this._lastLandObject = null;
     this._lastXOffset = 0;
     this._lastCameraX = 0;
@@ -2365,10 +2119,10 @@ class ps {
     if (this._ballOverlayLayer) {
       this._ballOverlayLayer.sprite.setTint(window.secondaryColor);
     }
-    this._waveGlowLayer = ds(_0x1872a7, _0xf42f36, _0x28689a, `${window.currentWave}_glow_001.png`, 9, false);
-    this._waveOverlayLayer = ds(_0x1872a7, _0xf42f36, _0x28689a, `${window.currentWave}_2_001.png`, 8, false);
+    this._waveGlowLayer = ds(_0x1872a7, _0xf42f36, _0x28689a, "player_dart_00_glow_001.png", 9, false);
+    this._waveOverlayLayer = ds(_0x1872a7, _0xf42f36, _0x28689a, "player_dart_00_2_001.png", 8, false);
     this._waveExtraLayer = null;
-    this._waveSpriteLayer = ds(_0x1872a7, _0xf42f36, _0x28689a, `${window.currentWave}_001.png`, 10, false);
+    this._waveSpriteLayer = ds(_0x1872a7, _0xf42f36, _0x28689a, "player_dart_00_001.png", 10, false);
     if (this._waveGlowLayer) {
       this._waveGlowLayer.sprite.setTint(window.secondaryColor);
       this._waveGlowLayer.sprite._glowEnabled = false;
@@ -2559,8 +2313,8 @@ class ps {
     });
     this._aboveContainer = scene.add.container(0, 0);
     this._aboveContainer.setDepth(13);
-    this._aboveContainer.add(this._landEmitter1);
-    this._aboveContainer.add(this._landEmitter2);
+    this._gameLayer.topContainer.add(this._landEmitter1);
+    this._gameLayer.topContainer.add(this._landEmitter2);
     this._landIdx = false;
     this._streak = new cs(this._scene, "streak_01", 0.231, 10, 8, 100, window.secondaryColor, 0.7);
     this._streak.addToContainer(this._gameLayer.container, 8);
@@ -2571,9 +2325,8 @@ class ps {
     }
     const _0x119eb7 = this._scene._playerWorldX;
     const _0x519d38 = b(this.p.y);
-    const _mirrorMod = this.p.mirrored ? -1 : 1;
-this._particleEmitter.particleX = _0x119eb7 - 20 * _mirrorMod;
-this._particleEmitter.particleY = _0x519d38 + (this.p.gravityFlipped ? -26 : 26);
+    this._particleEmitter.particleX = _0x119eb7 - 20;
+    this._particleEmitter.particleY = _0x519d38 + (this.p.gravityFlipped ? -26 : 26);
     const _0x4436ac = this.p.onGround && !this.p.isFlying && !this.p.isWave;
     if (_0x4436ac && !this._particleActive) {
       this._particleEmitter.start();
@@ -2585,8 +2338,8 @@ this._particleEmitter.particleY = _0x519d38 + (this.p.gravityFlipped ? -26 : 26)
     {
       const _0xe76a85 = Math.cos(this._rotation);
       const _0x26ec65 = Math.sin(this._rotation);
-      const _0x216018 = this.p.isWave ? 0 : -24 * _mirrorMod;
-      const _0x2baeac = this.p.isWave ? 16 : 18;
+      const _0x216018 = this.p.isWave ? 0 : -24;
+      const _0x2baeac = this.p.isWave ? 4 : 18;
       const _0x75c380 = _0x119eb7 + _0x216018 * _0xe76a85 - _0x2baeac * _0x26ec65;
       const _0x2b31d7 = _0x519d38 + _0x216018 * _0x26ec65 + _0x2baeac * _0xe76a85;
       const _0x5d66f4 = (Math.random() * 2 - 1) * 2 * 2;
@@ -2613,8 +2366,17 @@ this._particleEmitter.particleY = _0x519d38 + (this.p.gravityFlipped ? -26 : 26)
       this._flyParticle2Emitter.stop();
       this._flyParticle2Active = false;
     }
-    this._shipDragEmitter.x = centerX;
+    const _0x2e5643 = _0xc43238 + this._scene._getMirrorXOffset(_0x119eb7 - _0xc43238);
+    this._shipDragEmitter.x = _0x2e5643;
     this._shipDragEmitter.particleY = this.p.gravityFlipped ? b(this.p.y) + _0x52b718 - 30 : b(this.p.y) + _0x52b718 + 30;
+    this._shipDragEmitter.setAngle(this.p.mirrored ? {
+      min: 245,
+      max: 335
+    } : {
+      min: 205,
+      max: 295
+    });
+    this._shipDragEmitter.gravityX = this.p.mirrored ? 700 : -700;
     const _0x2ac9d0 = this.p.isFlying && this.p.onGround && (this.p.gravityFlipped ? this.p.onCeiling : !this.p.onCeiling);
     if (_0x2ac9d0 && !this._shipDragActive) {
       this._shipDragEmitter.start();
@@ -2721,7 +2483,10 @@ if (this.p.isFlying) {
             _0x2c61a1.sprite.y = _0x1a433c;
             const isBallLayer = this._ballLayers.includes(_0x2c61a1);
             _0x2c61a1.sprite.rotation = isBallLayer ? _0x2907d3 : (this.p.mirrored ? -_0x2907d3 : _0x2907d3);
-            const _miniS = this.p.isMini ? 0.6 : 1;
+            let _miniS = this.p.isMini ? 0.6 : 1;
+            if (this.p.isWave && this._waveLayers.includes(_0x2c61a1)) {
+              _miniS *= 0.42; //fix wave size
+            }
             _0x2c61a1.sprite.scaleY = (this.p.gravityFlipped ? -_miniS : _miniS);
             _0x2c61a1.sprite.scaleX = (this.p.mirrored ? -_miniS : _miniS);
         }
@@ -2733,8 +2498,10 @@ if (this.p.isFlying) {
       this._waveSpriteLayer.sprite.y -= 1;
     }
     this._updateParticles(cameraX, cameraY, _0x3afedf);
-    if (window.showHitboxes) {
+    if (this._showHitboxes) {
       this.drawHitboxes(this._hitboxGraphics, cameraX, cameraY);
+    } else if (this._hitboxGraphics) {
+      this._hitboxGraphics.clear();
     }
   }
   enterShipMode(_0xeb37c6 = null) {
@@ -2899,7 +2666,7 @@ hitGround() {
     if (_0x4a38a5 && !this.p.isFlying && !this.p.isWave) {
       this._landIdx = !this._landIdx;
       const _0x31584b = this._landIdx ? this._landEmitter1 : this._landEmitter2;
-      const _0x2248d5 = this._lastCameraX + centerX;
+      const _0x2248d5 = this._scene._playerWorldX;
       const _0x17e0bb = this.p.gravityFlipped ? b(this.p.y) - 30 : b(this.p.y) + 30;
       _0x31584b.explode(10, _0x2248d5, _0x17e0bb);
     }
@@ -2921,7 +2688,7 @@ hitGround() {
     this._streak.stop();
     this._streak.reset();
     const _0x3f4b84 = this._scene;
-    const _0x3f0446 = _0x3f4b84._playerWorldX - _0x3f4b84._cameraX;
+    const _0x3f0446 = _0x3f4b84._getMirrorXOffset(_0x3f4b84._playerWorldX - _0x3f4b84._cameraX);
     const _0x53ac5b = b(this.p.y) + this._lastCameraY;
     const _0x281e43 = 0.9;
     _0x3f4b84.add.particles(_0x3f0446, _0x53ac5b, "GJ_WebSheet", {
@@ -3089,7 +2856,7 @@ hitGround() {
         const _0x159cfa = {
           spr: _0xba83f5,
           particle: _0x298d34,
-          xVel: _0x422587 + (Math.random() * 2 - 1) * _0x1e87b0,
+          xVel: (_0x422587 + (Math.random() * 2 - 1) * _0x1e87b0) * (this.p.mirrored ? -1 : 1),
           yVel: -(12 + (Math.random() * 2 - 1) * 6),
           timer: 1.4,
           fadeTime: 0.5,
@@ -3265,6 +3032,7 @@ hitGround() {
     }
   }
   flipGravity(flipped, _0x11bbde = 0.5) {
+      console.log("flipGravity called: flipped=" + flipped + " current=" + this.p.gravityFlipped);
       if (this.p.gravityFlipped === flipped) {
         return;
       }
@@ -3272,7 +3040,6 @@ hitGround() {
       this.p.yVelocity *= _0x11bbde;
       this.p.onGround = false;
       this.p.canJump = false;
-      this.p.isJumping = false;
   }
   runRotateAction() {
 
@@ -3501,7 +3268,6 @@ _updateBallJump(_0x2fe319) {
     let _boostedThisStep = false;
     const _0x198534 = this._gameLayer.getNearbySectionObjects(_0x3c691e);
     for (let gameObj of _0x198534) {
-      if (gameObj._disabled) continue;
       if (gameObj.type === "hazard") {
         if (window.noClip) {
           continue;
@@ -3965,15 +3731,25 @@ _updateBallJump(_0x2fe319) {
       graphics.strokePath();
     }
     const _0x1e788a = b(playerY) + camY;
+    // comments so its easier for other people to read ts
+    // outer box (red)
     graphics.lineStyle(2, hexToHexadecimal("ff0000"), 0.8);
     graphics.strokeRect(centerX - playerSize, _0x1e788a - playerSize, hitboxsize, hitboxsize);
+    // ----
+    // inner circle (dark red)
     graphics.lineStyle(2, hexToHexadecimal("b30001"), 0.8);
     graphics.strokeCircle((centerX - playerSize)+hitboxsize/2, (_0x1e788a - playerSize)+hitboxsize/2, hitboxsize/2);
+    // ----
+    // inner hitbox (blue)
     graphics.lineStyle(2, hexToHexadecimal("0000ff"), 1);
     graphics.strokeRect(centerX - 9, _0x1e788a - 9, 18, 18);
+    // ----
   }
   setShowHitboxes(_0x2133d2) {
-    this._showHitboxes = true;
+    this._showHitboxes = !!_0x2133d2;
+    if (!this._showHitboxes && this._hitboxGraphics) {
+      this._hitboxGraphics.clear();
+    }
   }
   playEndAnimation(_0x24408e, _0x281588, _0x54bbf4) {
     this._endAnimating = true;
@@ -4404,25 +4180,6 @@ class xs extends Phaser.Scene {
         this._colorManager.setInitialColor(parseInt(chId, 10), col);
       }
     }
-    if (this._level._playerCopyChannels) {
-      for (let chId in this._level._playerCopyChannels) {
-        let copyFrom = this._level._playerCopyChannels[chId];
-        let pColor;
-        if (copyFrom === 1) {
-          pColor = window.mainColor || 0xfb2651;
-        } else {
-          pColor = window.secondaryColor || 0xffffff;
-        }
-        this._colorManager.setInitialColor(parseInt(chId, 10), {
-          r: (pColor >> 16) & 0xFF,
-          g: (pColor >> 8) & 0xFF,
-          b: pColor & 0xFF
-        });
-      }
-    }
-    if (this._level._blendChannels) {
-      this._colorManager._blendChannels = this._level._blendChannels;
-    }
     this._level.createEndPortal(this);
     this._glitterCenterX = 0;
     this._glitterCenterY = T;
@@ -4453,7 +4210,6 @@ class xs extends Phaser.Scene {
     this._level.additiveContainer.add(this._glitterEmitter);
     this._bg.setTint(this._colorManager.getHex(fs));
     this._level.setGroundColor(this._colorManager.getHex(gs));
-    this._level.applyChannelColors(this._colorManager);
     this._level.additiveContainer.setVisible(false);
     this._level.container.setVisible(false);
     this._level.topContainer.setVisible(false);
@@ -4496,7 +4252,7 @@ class xs extends Phaser.Scene {
       this._downloadBtns.push(_0x1d293f);
     }
     const _0x28fa5b = this.scale.isFullscreen;
-    this._menuFsBtn = this.add.image(33, 33, "GJ_WebSheet", _0x28fa5b ? "toggleFullscreenOff_001.png" : "toggleFullscreenOn_001.png").setScrollFactor(0).setDepth(30).setScale(0.64).setAlpha(0.8).setTint(Phaser.Display.Color.GetColor(0, Math.round(102), 255)).setInteractive();
+    this._menuFsBtn = this.add.image(33, 33, "GJ_WebSheet", _0x28fa5b ? "toggleFullscreenOff_001.png" : "toggleFullscreenOn_001.png").setScrollFactor(0).setDepth(30).setScale(0.64).setAlpha(0.8).setTint(Phaser.Display.Color.GetColor(255, 255, 255)).setInteractive();
     this._expandHitArea(this._menuFsBtn, 1.5);
     this._makeBouncyButton(this._menuFsBtn, 0.64, () => {
       const _0x26b7c = !this.scale.isFullscreen;
@@ -4541,7 +4297,75 @@ class xs extends Phaser.Scene {
     this._makeBouncyButton(this._playBtn, 1, () => {
       this._openLevelSelect();
     }, () => this._menuActive && !this._playBtnPressed && !this._levelSelectOverlay);
+    // creator stuff
+    this._creatorBtn = this.add.image(0, 0, "GJ_GameSheet04", "GJ_creatorBtn_001.png").setScrollFactor(0).setDepth(30).setInteractive().setScale(1);
+    this._creatorOverlay = null;
+    this._creatorOverlayObjects = null;
 
+    this._openCreatorMenu = () => {
+      if (this._creatorOverlay) return;
+
+      const sw = screenWidth;
+      const sh = screenHeight;
+
+      const fadeIn = this.add.graphics().setScrollFactor(0).setDepth(200);
+      fadeIn.fillStyle(0x000000, 1);
+      fadeIn.fillRect(0, 0, sw, sh);
+      this.tweens.add({ targets: fadeIn, alpha: 0, duration: 300, ease: "Linear", onComplete: () => fadeIn.destroy() });
+
+      const overlay = this.add.graphics().setScrollFactor(0).setDepth(100);
+      const gradientSteps = 80;
+      for (let gi = 0; gi < gradientSteps; gi++) {
+        const t = gi / (gradientSteps - 1);
+        const r1 = Math.round(0x00 + (0x01 - 0x00) * t);
+        const g1 = Math.round(0x65 + (0x2c - 0x65) * t);
+        const b1 = Math.round(0xff + (0x71 - 0xff) * t);
+        const bandColor = (r1 << 16) | (g1 << 8) | b1;
+        const bandY = Math.floor(gi * sh / gradientSteps);
+        const bandH = Math.ceil(sh / gradientSteps) + 1;
+        overlay.fillStyle(bandColor, 1);
+        overlay.fillRect(0, bandY, sw, bandH);
+      }
+      this._creatorOverlay = overlay;
+
+      const blocker = this.add.zone(sw / 2, sh / 2, sw, sh)
+        .setScrollFactor(0).setDepth(101).setInteractive();
+
+      const cornerTL = this.add.image(0,  0,  "GJ_GameSheet03", "GJ_sideArt_001.png")
+        .setScrollFactor(0).setDepth(103).setOrigin(0, 0).setFlipX(true).setFlipY(false);
+      const cornerBL = this.add.image(0,  sh, "GJ_GameSheet03", "GJ_sideArt_001.png")
+        .setScrollFactor(0).setDepth(103).setOrigin(0, 1).setFlipX(true).setFlipY(true);
+
+      const backBtn = this.add.image(50, 48, "GJ_GameSheet03", "GJ_arrow_03_001.png")
+        .setScrollFactor(0).setDepth(104).setFlipX(true)
+        .setScale(1, -1).setRotation(Math.PI).setInteractive();
+      backBtn.on("pointerup", () => this._closeCreatorMenu());
+
+      this._creatorOverlayObjects = [overlay, blocker, cornerTL, cornerBL, backBtn];
+
+      const comingSoonLabel = this.add.bitmapText(sw / 2, sh / 2 - 20, "bigFont", "Coming Soon!", 52)
+        .setScrollFactor(0).setDepth(104).setOrigin(0.5, 0.5);
+      const creditLabel = this.add.bitmapText(sw / 2, sh / 2 + 44, "bigFont", "- rohanis0000", 30)
+        .setScrollFactor(0).setDepth(104).setOrigin(0.5, 0.5);
+      this._creatorOverlayObjects.push(comingSoonLabel, creditLabel);
+    };
+    this._makeBouncyButton(this._creatorBtn, 1, () => {
+      this._openCreatorMenu();
+      if (this._creatorBtn) {
+        this.tweens.killTweensOf(this._creatorBtn);
+        this._creatorBtn.y = 320;
+        this._creatorBtn.setScale(1);
+        this.tweens.add({
+          targets: this._creatorBtn,
+          y: 324,
+          duration: 750,
+          ease: "Quad.InOut",
+          yoyo: true,
+          repeat: -1
+        });
+      }
+    }, () => this._menuActive && !this._levelSelectOverlay);
+      //icon stufff
     this._iconBtn = this.add.image(0, 0, "GJ_GameSheet03", "GJ_garageBtn_001.png").setScrollFactor(0).setDepth(30).setInteractive().setScale(1);
     this._iconBtnSelected = false;
     this._makeBouncyButton(this._iconBtn, 1, () => {
@@ -4559,10 +4383,9 @@ class xs extends Phaser.Scene {
           repeat: -1
         });
       }
-    }, () => this._menuActive);
+    }, () => this._menuActive && !this._levelSelectOverlay);
 
     this._iconOverlay = null;
-    this._levelSelectOverlay = null;
 
     const _iconFrameSets = {
       icon: [
@@ -4647,10 +4470,11 @@ class xs extends Phaser.Scene {
       this._iconOverlayObjects = [overlay, blocker, titleTxt];
 
       const backBtn = this.add.image(50, 48, "GJ_GameSheet03", "GJ_arrow_03_001.png")
-        .setScrollFactor(0).setDepth(104).setFlipX(true)
-        .setScale(1, -1).setRotation(Math.PI).setInteractive();
+        .setScrollFactor(0).setDepth(104).setFlipY(true)
+        .setFlipX(true)
+        .setRotation(Math.PI).setInteractive();
       this._iconOverlayObjects.push(backBtn);
-      backBtn.on("pointerup", () => this._closeIconSelector());
+      this._makeBouncyButton(backBtn, 1, () => this._closeIconSelector());
 
       const topBarHeight = 100;
       const lineY = topBarHeight + 100;
@@ -4707,7 +4531,7 @@ class xs extends Phaser.Scene {
       this._iconOverlayObjects.push(cornerTL, cornerTR, cornerBR, cornerBL);
 
       const navDotSpacing = 28;
-      const navDotY = containerY + containerHeight + 30;
+      const navDotY = containerY + containerHeight + 26;
       const navDot1 = this.add.image(sw / 2 - navDotSpacing / 1.5, navDotY, "GJ_GameSheet03", "gj_navDotBtn_on_001.png").setScrollFactor(0).setDepth(104).setScale(0.75);
       const navDot2 = this.add.image(sw / 2 + navDotSpacing / 1.5, navDotY, "GJ_GameSheet03", "gj_navDotBtn_off_001.png").setScrollFactor(0).setDepth(104).setScale(0.75);
       this._iconOverlayObjects.push(navDot1, navDot2);
@@ -4852,9 +4676,8 @@ class xs extends Phaser.Scene {
           .setInteractive();
         tabBtnSprites[tab] = btn;
         this._iconOverlayObjects.push(btn);
-        btn.on("pointerup", () => _switchTab(tab));
-        btn.on("pointerover", () => btn.setAlpha(0.75));
-        btn.on("pointerout",  () => btn.setAlpha(1));
+        
+        this._makeBouncyButton(btn, 0.75, () => _switchTab(tab));
       });
 
       this._iconGridObjects = [];
@@ -4864,14 +4687,26 @@ class xs extends Phaser.Scene {
 
       const iconsPerPage = cols * rows;
       let currentPage = 0;
+      let _currentTab = startTab;
 
       const arrowY = containerY + containerHeight / 2;
-      const arrowMargin = 36;
+      const arrowMargin = 54;
 
-      const prevArrow = this.add.image(containerX - arrowMargin, arrowY, "GJ_GameSheet03", "GJ_arrow_03_001.png")
+      const prevArrow = this.add.image(containerX - arrowMargin, arrowY, "GJ_GameSheet03", "GJ_arrow_01_001.png")
         .setScrollFactor(0).setDepth(106).setScale(0.8).setFlipX(false).setInteractive();
-      const nextArrow = this.add.image(containerX + containerWidth + arrowMargin, arrowY, "GJ_GameSheet03", "GJ_arrow_03_001.png")
+      const nextArrow = this.add.image(containerX + containerWidth + arrowMargin, arrowY, "GJ_GameSheet03", "GJ_arrow_01_001.png")
         .setScrollFactor(0).setDepth(106).setScale(0.8).setInteractive().setFlipX(true);
+
+      //bouncy buttons for arrows
+      const _togglePage = () => {
+        currentPage = currentPage === 0 ? 1 : 0;
+        _updateNavDots(currentPage);
+        _buildGrid(_currentTab, currentPage);
+      };
+
+      [prevArrow, nextArrow].forEach(arrow => {
+        this._makeBouncyButton(arrow, 0.8, _togglePage);
+      });
 
       this._iconOverlayObjects.push(prevArrow, nextArrow);
 
@@ -4893,38 +4728,32 @@ class xs extends Phaser.Scene {
           const ix  = startX + col * (iconSize + padding);
           const iy  = startY + row * (iconSize + padding);
 
-          const hitRect = this.add.rectangle(ix, iy, iconSize, iconSize, 0x000000, 0).setScrollFactor(0).setDepth(104).setInteractive();
+          const iconContainer = this.add.container(ix, iy).setScrollFactor(0).setDepth(104).setSize(iconSize, iconSize).setInteractive();
 
-          const iconImg = this.add.image(ix, iy, atlas, frame).setScrollFactor(0).setDepth(103);
+          const iconImg = this.add.image(0, 0, atlas, frame).setTint(0xAFAFAF); 
           const origScale = Math.min(
             iconSize / (iconImg.width  || iconSize),
             iconSize / (iconImg.height || iconSize)
           ) * 0.7;
           iconImg.setScale(origScale);
+          
+          iconContainer.add(iconImg);
 
           const extraFrame = frame.replace("_001.png", "_2_001.png");
           const extraInfo = R(this, extraFrame);
-          const extraImg = extraInfo
-            ? this.add.image(ix, iy, extraInfo.atlas, extraInfo.frame).setScrollFactor(0).setDepth(102).setScale(origScale)
-            : null;
+          let extraImg = null;
+          if (extraInfo) {
+            extraImg = this.add.image(0, 0, extraInfo.atlas, extraInfo.frame).setScale(origScale);
+            iconContainer.add(extraImg);
+          }
 
-          if (extraImg) this._iconGridObjects.push(extraImg);
-          this._iconGridObjects.push(iconImg, hitRect);
+          this._iconGridObjects.push(iconContainer);
 
-          ((capturedFrame, capturedImg, capturedExtra, capturedOrigScale) => {
-            hitRect.on("pointerover",  () => { capturedImg.setAlpha(0.65); if (capturedExtra) capturedExtra.setAlpha(0.65); });
-            hitRect.on("pointerout",   () => {
-              capturedImg.setAlpha(1); capturedImg.setScale(capturedOrigScale);
-              if (capturedExtra) { capturedExtra.setAlpha(1); capturedExtra.setScale(capturedOrigScale); }
-            });
-            hitRect.on("pointerdown",  () => { capturedImg.setScale(capturedOrigScale * 1.15); if (capturedExtra) capturedExtra.setScale(capturedOrigScale * 1.15); });
-            hitRect.on("pointerup",    () => {
-              capturedImg.setScale(capturedOrigScale);
-              capturedImg.setAlpha(1);
-              if (capturedExtra) { capturedExtra.setScale(capturedOrigScale); capturedExtra.setAlpha(1); }
+          ((capturedFrame, capturedContainer) => {
+            this._makeBouncyButton(capturedContainer, 1, () => {
               if (!this._iconOverlay) return;
 
-              selLabel.setPosition(capturedImg.x, capturedImg.y).setScale(0.75).setVisible(true);
+              selLabel.setPosition(capturedContainer.x, capturedContainer.y).setScale(0.75).setVisible(true);
 
               window[prop] = capturedFrame.replace("_001.png", "");
               localStorage.setItem("icon" + prop.charAt(0).toUpperCase() + prop.slice(1), window[prop]);
@@ -4982,23 +4811,10 @@ class xs extends Phaser.Scene {
 
               _refreshPreview(tab, capturedFrame);
             });
-          })(frame, iconImg, extraImg, origScale);
+          })(frame, iconContainer);
         });
       };
 
-      let _currentTab = startTab;
-      const _togglePage = () => {
-        currentPage = currentPage === 0 ? 1 : 0;
-        _updateNavDots(currentPage);
-        _buildGrid(_currentTab, currentPage);
-      };
-      prevArrow.on("pointerup", _togglePage);
-      prevArrow.on("pointerover", () => prevArrow.setAlpha(0.7));
-      prevArrow.on("pointerout",  () => prevArrow.setAlpha(1));
-
-      nextArrow.on("pointerup", _togglePage);
-      nextArrow.on("pointerover", () => nextArrow.setAlpha(0.7));
-      nextArrow.on("pointerout",  () => nextArrow.setAlpha(1));
 
       const _switchTabOrig = _switchTab;
       const _switchTabPaged = (tab) => {
@@ -5018,7 +4834,9 @@ class xs extends Phaser.Scene {
         const btn = tabBtnSprites[tab];
         if (btn) {
           btn.removeAllListeners("pointerup");
-          btn.on("pointerup", () => _switchTabPaged(tab));
+          btn.removeAllListeners("pointerdown");
+          btn.removeAllListeners("pointerout");
+          this._makeBouncyButton(btn, 0.75, () => _switchTabPaged(tab));
         }
       });
 
@@ -5056,20 +4874,60 @@ class xs extends Phaser.Scene {
         }
       });
     };
-    this._positionMenuItems();
-    if (this._iconBtn) {
-      this._iconBtn.x = (screenWidth / 2) - this._playBtn.width / 2 - 100 - (this._iconBtn.width * this._iconBtn.scaleX) / 2;
-      this.tweens.killTweensOf(this._iconBtn, "y");
-      this._iconBtn.y = 320;
+    this._closeCreatorMenu = (silent = false) => {
+      if (!this._creatorOverlay) return;
+      const destroy = () => {
+        if (this._creatorOverlayObjects) {
+          for (const obj of this._creatorOverlayObjects) {
+            if (obj && obj.destroy) obj.destroy();
+          }
+          this._creatorOverlayObjects = null;
+        }
+        this._creatorOverlay = null;
+      };
+      if (silent) { destroy(); return; }
+      const sw = screenWidth;
+      const sh = screenHeight;
+      const fadeOut = this.add.graphics().setScrollFactor(0).setDepth(200).setAlpha(0);
+      fadeOut.fillStyle(0x000000, 1);
+      fadeOut.fillRect(0, 0, sw, sh);
       this.tweens.add({
-        targets: this._iconBtn,
-        y: 324,
-        duration: 750,
-        ease: "Quad.InOut",
-        yoyo: true,
-        repeat: -1
+        targets: fadeOut, alpha: 1, duration: 150, ease: "Linear",
+        onComplete: () => {
+          destroy();
+          this.tweens.add({ targets: fadeOut, alpha: 0, duration: 150, ease: "Linear", onComplete: () => fadeOut.destroy() });
+        }
       });
-    }
+    };
+    this._positionMenuItems();
+    //icon stuff sequel
+    if (this._iconBtn) {
+  this._iconBtn.x = (screenWidth / 2) - this._playBtn.width / 2 - 100 - (this._iconBtn.width * this._iconBtn.scaleX) / 2;
+  this.tweens.killTweensOf(this._iconBtn, "y");
+  this._iconBtn.y = 320;
+  this.tweens.add({
+    targets: this._iconBtn,
+    y: 324,
+    duration: 750,
+    ease: "Quad.InOut",
+    yoyo: true,
+    repeat: -1
+  });
+}
+    // creator stuff the sequel
+    if (this._creatorBtn) {
+  this._creatorBtn.x = (screenWidth / 2) + this._playBtn.width / 2 + 100 + (this._creatorBtn.width * this._creatorBtn.scaleX) / 2;
+  this.tweens.killTweensOf(this._creatorBtn, "y");
+  this._creatorBtn.y = 320;
+  this.tweens.add({
+    targets: this._creatorBtn,
+    y: 324,
+    duration: 750,
+    ease: "Quad.InOut",
+    yoyo: true,
+    repeat: -1
+  });
+}
     this._spaceWasDown = false;
     this._spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
     this._upKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.UP);
@@ -5086,14 +4944,21 @@ class xs extends Phaser.Scene {
     this._pauseBtn.on("pointerdown", () => this._pauseGame());
     this._escKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC);
     this._escKey.on("down", () => {
-      if (this._levelSelectOverlay) {
-        this._closeLevelSelect();
-        return;
-      }
-      if (this._iconOverlay) {
-        this._closeIconSelector();
-        return;
-      }
+    if (this._levelSelectOverlay) {
+      this._closeLevelSelect();
+      return;
+    }
+    if (this._iconOverlay) {
+  this._closeIconSelector();
+  return;
+} });
+this._escKey.on("down", () => {
+    if (this._creatorOverlay) {
+  this._closeCreatorMenu();
+  return;
+}
+    });
+    this._escKey.on("down", () => {
       if (this._paused) {
         this._audio.playEffect("quitSound_01");
         this._audio.stopMusic();
@@ -5147,51 +5012,52 @@ class xs extends Phaser.Scene {
     }
     this._levelLabel = this.add.bitmapText(screenWidth - 565, 30, "bigFont", window.currentlevel[1], 30).setOrigin(0.5, 0.5).setVisible(false);
     this._levelLabel.setScale(Math.min(1, 220 / this._levelLabel.width));
-
-    this._leftBtn  = this.add.image(screenWidth - 700, 30, "GJ_GameSheet03", "edit_leftBtn_001.png").setScrollFactor(0).setDepth(30).setInteractive().setVisible(false);
+    
+    this._leftBtn = this.add.image(screenWidth - 700, 30, "GJ_GameSheet03", "edit_leftBtn_001.png").setScrollFactor(0).setDepth(30).setInteractive().setVisible(false);
     this._rightBtn = this.add.image(screenWidth - 429, 30, "GJ_GameSheet03", "edit_leftBtn_001.png").setScrollFactor(0).setDepth(30).setInteractive().setVisible(false);
     this._rightBtn.setRotation(Math.PI);
-
     window.scene = this.scene;
-    window.rightbuttoncallback = function() {
-      let index = window.allLevels.findIndex(l => l[2] === window.currentlevel[2]);
-      index = (index + 1 + window.allLevels.length) % window.allLevels.length;
-      window.currentlevel = [...window.allLevels[index]];
-      window.scene.restart();
+    window.rightbuttoncallback = () => {
+      if (this._levelSelectOverlay && this._levelSelectSwitchLevel) {
+        this._levelSelectSwitchLevel(1);
+      }
     };
-    window.leftbuttoncallback = function() {
-      let index = window.allLevels.findIndex(l => l[2] === window.currentlevel[2]);
-      index = (index - 1 + window.allLevels.length) % window.allLevels.length;
-      window.currentlevel = [...window.allLevels[index]];
-      window.scene.restart();
+    window.leftbuttoncallback = () => {
+      if (this._levelSelectOverlay && this._levelSelectSwitchLevel) {
+        this._levelSelectSwitchLevel(-1);
+      }
     };
-    this._makeBouncyButton(this._leftBtn,  1, () => window.leftbuttoncallback(),  () => this._menuActive);
-    this._makeBouncyButton(this._rightBtn, 1, () => window.rightbuttoncallback(), () => this._menuActive);
+    this._makeBouncyButton(this._leftBtn, 1, () => {window.leftbuttoncallback()}, () => this._menuActive);
+    this._makeBouncyButton(this._rightBtn, 1, () => {window.rightbuttoncallback()}, () => this._menuActive);
     if (!this._audio.isplaying()) {
       this._audio.startMenuMusic();
     }
     if (this.game.registry.get("autoStartGame")) {
       this.game.registry.remove("autoStartGame");
-      this.time.delayedCall(50, () => {
-        this._startGame();
-      });
+      this._levelLabel.setVisible(false);
+      this._leftBtn.setVisible(false);
+      this._rightBtn.setVisible(false);
+      this._percentageLabel.setVisible(window.showPercentage);
+      this._startGame();
     }
   }
-  _buildHUD() {
-    this._attemptsLabel = this.add.bitmapText(0, 0, "bigFont", "Attempt 1", 65).setOrigin(0.5, 0.5).setVisible(false);
-    this._level.topContainer.add(this._attemptsLabel);
-    this._positionAttemptsLabel();
-    this._fpsText = this.add.text(screenWidth - 20, 10, "", {
-      fontSize: "28px",
-      fill: "#ff0000",
-      fontFamily: "Arial"
-    }).setOrigin(1, 0).setScrollFactor(0).setDepth(999).setVisible(false);
-    this._fpsAccum = 0;
-    this._fpsFrames = 0;
-    this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.H).on("down", () => {
-      this._fpsText.setVisible(!this._fpsText.visible);
-    });
+  _parseLevelColors(levelId) {
+    const LEVEL_COLORS = [
+      0x0100f5,0xf902f8,0xf90285,0xfa0102,
+      0xfa8702,0xfcfc06,0x03fb03,0x02fbfb,
+      0x007dff
+    ];
+    
+    let index = 0;
+    if (window.allLevels) {
+      index = window.allLevels.findIndex(l => l[2] === levelId);
+      if (index === -1) index = 0;
+    }
+    
+    const bgHex = LEVEL_COLORS[index % LEVEL_COLORS.length];
+    return { bgHex, groundHex: bgHex };
   }
+
   _openLevelSelect() {
     if (this._levelSelectOverlay) return;
     const sw = screenWidth;
@@ -5199,63 +5065,105 @@ class xs extends Phaser.Scene {
     const cx = sw / 2;
     const cy = sh / 2;
 
+    let { bgHex, groundHex } = this._parseLevelColors(window.currentlevel[2]);
+
+    const drawOverlay = (gfx, colorHex, isEveryEnd = false) => {
+      gfx.clear();
+      const rRaw = (colorHex >> 16) & 0xff;
+      const gRaw = (colorHex >> 8)  & 0xff;
+      const bRaw =  colorHex        & 0xff;
+      const topMul = isEveryEnd ? 0.30 : 0.65;
+      const botMul = isEveryEnd ? 0.18 : 0.42;
+      const steps = 60;
+      for (let i = 0; i < steps; i++) {
+        const t = i / (steps - 1);
+        const mul = topMul + (botMul - topMul) * t;
+        const r2 = Math.min(255, Math.round(rRaw * mul));
+        const g2 = Math.min(255, Math.round(gRaw * mul));
+        const b2 = Math.min(255, Math.round(bRaw * mul));
+        gfx.fillStyle((r2 << 16) | (g2 << 8) | b2, 1);
+        const y0 = Math.floor(i * sh / steps);
+        gfx.fillRect(0, y0, sw, Math.ceil(sh / steps) + 1);
+      }
+    };
+
+    const isEveryEnd = (levelId) => levelId === "level_99";
+
     const fadeIn = this.add.graphics().setScrollFactor(0).setDepth(200);
     fadeIn.fillStyle(0x000000, 1);
     fadeIn.fillRect(0, 0, sw, sh);
     this.tweens.add({ targets: fadeIn, alpha: 0, duration: 300, ease: "Linear", onComplete: () => fadeIn.destroy() });
 
     const overlay = this.add.graphics().setScrollFactor(0).setDepth(150);
-    const steps = 60;
-    for (let i = 0; i < steps; i++) {
-      const t = i / (steps - 1);
-      const r2 = Math.round(0x00 + (0x02 - 0x00) * t);
-      const g2 = Math.round(0x1a + (0x15 - 0x1a) * t);
-      const b2 = Math.round(0xff + (0xba - 0xff) * t);
-      overlay.fillStyle((r2 << 16) | (g2 << 8) | b2, 1);
-      const y0 = Math.floor(i * sh / steps);
-      overlay.fillRect(0, y0, sw, Math.ceil(sh / steps) + 1);
-    }
+    drawOverlay(overlay, bgHex, isEveryEnd(window.currentlevel[2]));
     this._levelSelectOverlay = overlay;
 
     const tableBottom = this.add.image(cx, -24, "GJ_GameSheet03", "GJ_table_bottom_001.png")
       .setScrollFactor(0).setDepth(152).setOrigin(0.5, 0);
 
     const groundY = sh + 175;
-    const groundId = window._groundId || "01";
+    const groundId = (window._groundId || "01");
     const groundFrame = this.textures.getFrame("groundSquare_" + groundId + "_001.png");
     const tileW = groundFrame ? groundFrame.width : 1012;
     const numTiles = Math.ceil(sw / tileW) + 2;
+    const groundTintHex = (colorHex) => {
+      const r = Math.round(((colorHex >> 16) & 0xff) * 0.45);
+      const g = Math.round(((colorHex >> 8)  & 0xff) * 0.45);
+      const b = Math.round(( colorHex        & 0xff) * 0.45);
+      return (r << 16) | (g << 8) | b;
+    };
+
     const staticGroundTiles = [];
     for (let gi = 0; gi < numTiles; gi++) {
       const gt = this.add.image(gi * tileW, groundY, "groundSquare_" + groundId + "_001.png")
-        .setScrollFactor(0).setDepth(152).setOrigin(0, 1).setTint(0x001eff);
+        .setScrollFactor(0).setDepth(152).setOrigin(0, 1).setTint(groundTintHex(groundHex));
       staticGroundTiles.push(gt);
     }
     const floorLineFrame = this.textures.getFrame("GJ_WebSheet", "floorLine_01_001.png");
     const floorLineW = floorLineFrame ? floorLineFrame.width : 888;
+    const floorLineScale = sw / floorLineW;
     const groundTileH = groundFrame ? groundFrame.height : 80;
     const staticFloorLine = this.add.image(cx, groundY - groundTileH, "GJ_WebSheet", "floorLine_01_001.png")
-      .setScrollFactor(0).setDepth(153).setOrigin(0.5, 0.5).setScale(sw / floorLineW, 1).setBlendMode(S);
+      .setScrollFactor(0).setDepth(153).setOrigin(0.5, 0.5).setScale(floorLineScale, 1).setBlendMode(S);
 
-    const cornerBL = this.add.image(0,  sh, "GJ_GameSheet03", "GJ_sideArt_001.png").setScrollFactor(0).setDepth(152).setOrigin(0, 1).setFlipX(true).setFlipY(true);
-    const cornerBR = this.add.image(sw, sh, "GJ_GameSheet03", "GJ_sideArt_001.png").setScrollFactor(0).setDepth(152).setOrigin(1, 1).setFlipY(true);
+    const cornerBL = this.add.image(0,  sh, "GJ_GameSheet03", "GJ_sideArt_001.png").setScrollFactor(0).setDepth(152).setOrigin(1, 1).setFlipY(true).setAngle(90);
+    const cornerBR = this.add.image(sw, sh, "GJ_GameSheet03", "GJ_sideArt_001.png").setScrollFactor(0).setDepth(152).setOrigin(1, 0).setFlipY(false).setAngle(90);
 
-    const backBtn = this.add.image(50, 48, "GJ_GameSheet03", "GJ_arrow_03_001.png")
+    const backBtn = this.add.image(50, 48, "GJ_GameSheet03", "GJ_arrow_01_001.png")
       .setScrollFactor(0).setDepth(154).setFlipX(true).setScale(1, -1).setRotation(Math.PI).setInteractive();
-    backBtn.on("pointerup", () => this._closeLevelSelect());
+    backBtn.on("pointerdown", () => {
+      backBtn._pressed = true;
+      this.tweens.killTweensOf(backBtn);
+      this.tweens.add({ targets: backBtn, scaleX: 1.26, scaleY: -1.26, duration: 300, ease: "Bounce.Out" });
+    });
+    backBtn.on("pointerout", () => {
+      if (backBtn._pressed) {
+        backBtn._pressed = false;
+        this.tweens.killTweensOf(backBtn);
+        this.tweens.add({ targets: backBtn, scaleX: 1, scaleY: -1, duration: 400, ease: "Bounce.Out" });
+      }
+    });
+    backBtn.on("pointerup", () => {
+      if (backBtn._pressed) {
+        backBtn._pressed = false;
+        this.tweens.killTweensOf(backBtn);
+        backBtn.setScale(1, -1);
+        this._closeLevelSelect();
+      }
+    });
 
-    const infoBtn = this.add.image(sw - 36, 36, "GJ_GameSheet03", "GJ_infoIcon_001.png")
-      .setScrollFactor(0).setDepth(154).setScale(0.7).setRotation(Math.PI / 2).setInteractive();
+    const infoBtn = this.add.image(sw - 40, 40, "GJ_GameSheet03", "GJ_infoIcon_001.png")
+      .setScrollFactor(0).setDepth(154).setRotation(Math.PI / 2).setInteractive();
 
     const arrowL = this.add.image(55, cy - 25, "GJ_GameSheet03", "navArrowBtn_001.png")
       .setScrollFactor(0).setDepth(154).setScale(1.1).setFlipX(true).setInteractive();
     const arrowR = this.add.image(sw - 55, cy - 25, "GJ_GameSheet03", "navArrowBtn_001.png")
-      .setScrollFactor(0).setDepth(154).setScale(1.1).setInteractive();
+      .setScrollFactor(0).setDepth(154).setScale(1.1).setFlipX(false).setInteractive();
 
     const allLevels = window.allLevels || [];
     const dotY = sh - 36;
     const maxDots = Math.min(allLevels.length, 28);
-    const dotSpacing = 20;
+    const dotSpacing = 27;
     const dotStartX = cx - (maxDots - 1) * dotSpacing / 2;
     const dotObjs = [];
     const refreshDots = () => {
@@ -5266,7 +5174,7 @@ class xs extends Phaser.Scene {
         const active = di === idx;
         const d = this.add.graphics().setScrollFactor(0).setDepth(153);
         d.fillStyle(0xffffff, active ? 1 : 0.3);
-        d.fillCircle(dotStartX + di * dotSpacing, dotY, active ? 7 : 5);
+        d.fillCircle(dotStartX + di * dotSpacing, dotY, 7);
         dotObjs.push(d);
       }
     };
@@ -5277,18 +5185,49 @@ class xs extends Phaser.Scene {
     const cardX = cx;
     const cardY = cy - 100;
 
-    const cardBg = this.add.graphics().setScrollFactor(0).setDepth(152);
-    cardBg.fillStyle(0x000f4a, 0.88);
-    cardBg.fillRoundedRect(cardX - cardW / 2, cardY - cardH / 2, cardW, cardH, 14);
+    const cardSlideContainer = this.add.container(0, 0).setScrollFactor(0).setDepth(152);
+    const cardBounceContainer = this.add.container(cardX, cardY).setScrollFactor(0).setDepth(0);
+    cardSlideContainer.add(cardBounceContainer);
+    const cardContainer = cardSlideContainer;
+
+    const cardBg = this.add.graphics();
+    const drawCardBg = (colorHex, dark = false) => {
+      cardBg.clear();
+      const mul = dark ? 0.10 : 0.22;
+      const r = Math.round(((colorHex >> 16) & 0xff) * mul);
+      const g = Math.round(((colorHex >> 8)  & 0xff) * mul);
+      const b = Math.round(( colorHex        & 0xff) * mul);
+      cardBg.fillStyle((r << 16) | (g << 8) | b, 0.92);
+      cardBg.fillRoundedRect(-cardW / 2, -cardH / 2, cardW, cardH, 14);
+    };
+    drawCardBg(bgHex, isEveryEnd(window.currentlevel[2]));
+    cardBounceContainer.add(cardBg);
 
     const cardHit = this.add.zone(cardX, cardY, cardW, cardH)
       .setScrollFactor(0).setDepth(156).setInteractive();
+    cardHit.on("pointerdown", () => {
+      cardHit._pressed = true;
+      this.tweens.killTweensOf(cardBounceContainer, "scale");
+      this.tweens.add({ targets: cardBounceContainer, scale: 1.26, duration: 300, ease: "Bounce.Out" });
+    });
+    cardHit.on("pointerout", () => {
+      if (cardHit._pressed) {
+        cardHit._pressed = false;
+        this.tweens.killTweensOf(cardBounceContainer, "scale");
+        this.tweens.add({ targets: cardBounceContainer, scale: 1, duration: 400, ease: "Bounce.Out" });
+      }
+    });
     cardHit.on("pointerup", () => {
-      this._audio.playEffect("playSound_01", { volume: 1 });
-      this._closeLevelSelect(true);
-      this._audio.stopMusic();
-      this.game.registry.set("autoStartGame", true);
-      this.scene.restart();
+      if (cardHit._pressed) {
+        cardHit._pressed = false;
+        this.tweens.killTweensOf(cardBounceContainer, "scale");
+        cardBounceContainer.setScale(1);
+        this._audio.playEffect("playSound_01", { volume: 1 });
+        this._closeLevelSelect(true);
+        this._audio.stopMusic();
+        this.game.registry.set("autoStartGame", true);
+        this.scene.restart();
+      }
     });
 
     const cardContentObjs = [];
@@ -5333,20 +5272,23 @@ class xs extends Phaser.Scene {
       const diffFrame = diffIconKey + ".png";
       const iconX = cardX - cardW / 2 + 52;
       const isHardDemon = diffIconKey === "diffIcon_06_btn_001";
-      const demonIcon = this.add.image(iconX, cardY, "GJ_GameSheet03", diffFrame)
-        .setScrollFactor(0).setDepth(155).setScale(1.25).setOrigin(0.5, 0.5)
-        .setRotation(isHardDemon ? Math.PI / 2 : 0);
+      const iconRotation = isHardDemon ? Math.PI / 2 : 0;
+      const demonIcon = this.add.image(iconX - cardX, 0, "GJ_GameSheet03", diffFrame)
+        .setScrollFactor(0).setDepth(155).setScale(1).setOrigin(0.5, 0.5).setRotation(iconRotation).setFlipY(isHardDemon);
       cardContentObjs.push(demonIcon);
+      cardBounceContainer.add(demonIcon);
 
       const maxIconH = cardH - 16;
       const maxIconW = 80;
       const iconFrame = this.textures.getFrame("GJ_GameSheet03", diffFrame);
-      let finalIconScale = 1.25;
+      let finalIconScale = 1;
       if (iconFrame) {
-        finalIconScale = Math.min(1.25, maxIconH / iconFrame.height, maxIconW / iconFrame.width);
+        const scaleForH = maxIconH / iconFrame.height;
+        let scaleForW = maxIconW / iconFrame.width;
+        finalIconScale = Math.min(1, scaleForH, scaleForW);
         demonIcon.setScale(finalIconScale);
       }
-      const iconDisplayW = (iconFrame ? iconFrame.width  : 80) * finalIconScale;
+      let iconDisplayW = (iconFrame ? iconFrame.width : 80) * finalIconScale;
       const iconDisplayH = (iconFrame ? iconFrame.height : 80) * finalIconScale;
 
       const nameLabel = this.add.bitmapText(0, 0, "bigFont", lvl[1], 50)
@@ -5355,88 +5297,196 @@ class xs extends Phaser.Scene {
       const gap = 25;
       const naturalGroupW = iconDisplayW + gap + nameLabel.width;
       const naturalGroupH = Math.max(iconDisplayH, nameLabel.height);
+
       const cardPad = 16;
-      const groupScale = Math.min(1, (cardW - cardPad * 2) / naturalGroupW, (cardH - cardPad * 2) / naturalGroupH);
+      const maxGroupW = cardW - cardPad * 2;
+      const maxGroupH = cardH - cardPad * 2;
+      const groupScale = Math.min(1, maxGroupW / naturalGroupW, maxGroupH / naturalGroupH);
 
       const scaledIconW  = iconDisplayW  * groupScale;
       const scaledLabelW = nameLabel.width * groupScale;
-      const scaledGap    = gap * groupScale;
+      const scaledGap = gap * groupScale;
       const totalW = scaledIconW + scaledGap + scaledLabelW;
+
       const groupStartX = cardX - totalW / 2;
 
       demonIcon.setScale(finalIconScale * groupScale);
-      demonIcon.setPosition(groupStartX + scaledIconW / 2, cardY);
+      demonIcon.setPosition(groupStartX + scaledIconW / 2 - cardX, 0);
+
       nameLabel.setScale(groupScale);
-      nameLabel.setPosition(groupStartX + scaledIconW + scaledGap, cardY);
+      nameLabel.setPosition(groupStartX + scaledIconW + scaledGap - cardX, 0);
+
       cardContentObjs.push(nameLabel);
+      cardBounceContainer.add(nameLabel);
     };
 
     const barAreaY = cardY + cardH / 2 + 100;
     const barW2 = Math.min(600, sw - 200);
     const barH2 = 36;
     const barX0 = cx - barW2 / 2;
+
     let barObjs = [];
     const buildBar = () => {
       for (const o of barObjs) { this.tweens.killTweensOf(o); o.destroy(); }
       barObjs.length = 0;
+
       const bestNormal = parseFloat(localStorage.getItem("bestPercent_" + (window.currentlevel[2] || "level_1")) || "0");
+
       const modeLabel = this.add.bitmapText(cx, barAreaY - 40, "bigFont", "Normal Mode", 30)
         .setScrollFactor(0).setDepth(155).setOrigin(0.5, 0.5);
       barObjs.push(modeLabel);
+      cardContainer.add(modeLabel);
+
       const barBg = this.add.graphics().setScrollFactor(0).setDepth(154);
-      barBg.fillStyle(0x000000, 0.5);
+      barBg.fillStyle(0x000000, 0.6);
       barBg.fillRoundedRect(barX0, barAreaY - barH2 / 2, barW2, barH2, barH2 / 2);
       barObjs.push(barBg);
-      const radius = barH2 / 2;
-      const fillW = Math.max(barH2, barW2 * bestNormal / 100);
+      cardContainer.add(barBg);
+
+      const padding = 3;
+      const innerH2 = barH2 - padding * 2;
+      const innerW2 = barW2 - padding * 2;
+      const innerRadius = innerH2 / 2;
+      const fillW = Math.max(innerH2, innerW2 * bestNormal / 100);
+
+      console.log({ bestNormal, fillW });
+    
+    if(bestNormal > 0) {
       const barFg = this.add.graphics().setScrollFactor(0).setDepth(155);
-      barFg.fillStyle(0x22cc22, 1);
-      barFg.fillCircle(barX0 + radius, barAreaY, radius);
-      barFg.fillRect(barX0 + radius, barAreaY - radius, fillW - radius, barH2);
+      barFg.fillStyle(0x00FF00, 1);
+      
+      const rightR = (bestNormal >= 100) ? innerRadius : 0;
+      
+      barFg.fillRoundedRect(barX0 + padding, barAreaY - barH2 / 2 + padding, fillW, innerH2, {
+        tl: innerRadius,
+        bl: innerRadius,
+        tr: rightR,
+        br: rightR
+      });
+      
       barObjs.push(barFg);
+        cardContainer.add(barFg);
+      }
+
       const pctLabel = this.add.bitmapText(cx, barAreaY, "bigFont", Math.round(bestNormal) + "%", 22)
         .setScrollFactor(0).setDepth(156).setOrigin(0.5, 0.5);
       barObjs.push(pctLabel);
+      cardContainer.add(pctLabel);
     };
 
     buildCardContent();
     buildBar();
 
+    let _currentAnimUpdate = null;
+
     const switchLevel = (dir) => {
       if (!window.allLevels || window.allLevels.length === 0) return;
+
+      if (_currentAnimUpdate) {
+        this.events.off("preupdate", _currentAnimUpdate);
+        _currentAnimUpdate = null;
+        cardContainer.x = 0;
+      }
+
       let idx = window.allLevels.findIndex(l => l[2] === window.currentlevel[2]);
       idx = (idx + dir + window.allLevels.length) % window.allLevels.length;
       window.currentlevel = [...window.allLevels[idx]];
-      buildCardContent();
-      buildBar();
-      refreshDots();
+
+      const newColors = this._parseLevelColors(window.currentlevel[2]);
+      const dark = isEveryEnd(window.currentlevel[2]);
+
+      const slideDist = cardW-200;
+      const slideOutTarget = -dir * slideDist;
+      const slideInStart = dir * slideDist;
+
+      this.tweens.killTweensOf(cardContainer);
+
+      let state = "out";
+      let currentX = cardContainer.x;
+      let vel = 0;
+
+      const scrollAnimUpdate = (time,delta) => {
+        const dt = Math.min(delta / 1000, 0.05);
+
+        if (state === "out") {
+          const speed = slideDist * 14; 
+          currentX += (-dir) * speed * dt;
+          
+          if ((dir > 0 && currentX <= slideOutTarget) || (dir < 0 && currentX >= slideOutTarget)) {
+            for (const o of cardContentObjs) {
+              cardBounceContainer.remove(o, false);
+              o.destroy();
+            }
+            for (const o of barObjs) {
+              cardSlideContainer.remove(o, false);
+              o.destroy();
+            }
+            cardContentObjs.length = 0;
+            barObjs.length = 0;
+
+            drawCardBg(newColors.bgHex, dark);
+            buildCardContent();
+            buildBar();
+
+            drawOverlay(overlay, newColors.bgHex, dark);
+            for (const gt of staticGroundTiles) gt.setTint(groundTintHex(newColors.groundHex));
+            refreshDots();
+
+            state = "in";
+            currentX = slideInStart;
+            vel = (-dir) * slideDist * 6;
+          }
+        } else if (state === "in") {
+          const tension = 300;
+          const friction = 15;
+          
+          const force = -tension * (currentX - 0) - friction * vel;
+          vel += force * dt;
+          currentX += vel * dt;
+
+          if (Math.abs(currentX) < 1 && Math.abs(vel) < 15) {
+            currentX = 0;
+            this.events.off("preupdate", scrollAnimUpdate);
+            if (_currentAnimUpdate === scrollAnimUpdate) {
+              _currentAnimUpdate = null;
+            }
+          }
+        }
+        cardContainer.x = currentX;
+      };
+
+      _currentAnimUpdate = scrollAnimUpdate;
+      this.events.on("preupdate", scrollAnimUpdate);
     };
-    arrowL.on("pointerup", () => switchLevel(-1));
-    arrowR.on("pointerup", () => switchLevel(1));
+
+    this._makeBouncyButton(arrowL, 1.1, () => { switchLevel(-1); });
+    this._makeBouncyButton(arrowR, 1.1, () => { switchLevel(1); });
 
     const inputBlocker = this.add.zone(cx, cy, sw, sh)
       .setScrollFactor(0).setDepth(151).setInteractive();
-
-    this._levelSelectStaticObjs  = [overlay, inputBlocker, tableBottom, ...staticGroundTiles, staticFloorLine, cornerBL, cornerBR, backBtn, infoBtn, arrowL, arrowR, cardBg, cardHit];
-    this._levelSelectDotObjs     = dotObjs;
+    this._levelSelectStaticObjs = [overlay, inputBlocker, tableBottom, ...staticGroundTiles, staticFloorLine, cornerBL, cornerBR, backBtn, infoBtn, arrowL, arrowR, cardSlideContainer, cardHit];
+    this._levelSelectSwitchLevel = switchLevel;
+    this._levelSelectDotObjs = dotObjs;
     this._levelSelectCardContent = cardContentObjs;
-    this._levelSelectBarObjs     = barObjs;
+    this._levelSelectBarObjs = barObjs;
   }
+
   _closeLevelSelect(silent = false) {
     if (!this._levelSelectOverlay) return;
     const destroy = () => {
       const all = [
-        ...(this._levelSelectStaticObjs  || []),
-        ...(this._levelSelectDotObjs     || []),
+        ...(this._levelSelectStaticObjs || []),
+        ...(this._levelSelectDotObjs || []),
         ...(this._levelSelectCardContent || []),
-        ...(this._levelSelectBarObjs     || []),
+        ...(this._levelSelectBarObjs || []),
       ];
       for (const o of all) { if (o && o.destroy) { this.tweens.killTweensOf(o); o.destroy(); } }
-      this._levelSelectOverlay     = null;
-      this._levelSelectStaticObjs  = null;
-      this._levelSelectDotObjs     = null;
+      this._levelSelectOverlay = null;
+      this._levelSelectStaticObjs = null;
+      this._levelSelectDotObjs = null;
       this._levelSelectCardContent = null;
-      this._levelSelectBarObjs     = null;
+      this._levelSelectBarObjs = null;
+      this._levelSelectSwitchLevel = null;
     };
     if (silent) { destroy(); return; }
     const sw = screenWidth;
@@ -5450,6 +5500,22 @@ class xs extends Phaser.Scene {
         destroy();
         this.tweens.add({ targets: fadeOut, alpha: 0, duration: 150, ease: "Linear", onComplete: () => fadeOut.destroy() });
       }
+    });
+  }
+
+  _buildHUD() {
+    this._attemptsLabel = this.add.bitmapText(0, 0, "bigFont", "Attempt 1", 65).setOrigin(0.5, 0.5).setVisible(false);
+    this._level.topContainer.add(this._attemptsLabel);
+    this._positionAttemptsLabel();
+    this._fpsText = this.add.text(screenWidth - 20, 10, "", {
+      fontSize: "28px",
+      fill: "#ff0000",
+      fontFamily: "Arial"
+    }).setOrigin(1, 0).setScrollFactor(0).setDepth(999).setVisible(false);
+    this._fpsAccum = 0;
+    this._fpsFrames = 0;
+    this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.H).on("down", () => {
+      this._fpsText.setVisible(!this._fpsText.visible);
     });
   }
   toggleGlitter(_0x34c21a) {
@@ -5493,7 +5559,32 @@ class xs extends Phaser.Scene {
         this._pauseContainer.destroy();
         this._pauseContainer = null;
       }
+      this._noclipCheckbox = null;
+      this._showHitboxesCheckbox = null;
     }
+  }
+  _createPauseToggleButton(_0x5376fd, _0x3b6200, _0x2b25c8, _0xe203c3, _0x268e2b, _0x2d04c4) {
+    const _0x4864cc = this.add.container(_0x3b6200, _0x2b25c8);
+    const _0x3ae5dd = this.add.image(0, 0, "GJ_GameSheet03", _0x268e2b ? "GJ_checkOn_001.png" : "GJ_checkOff_001.png").setScale(0.7).setInteractive();
+    const _0x15c0df = this.add.bitmapText(_0x3ae5dd.width * 0.7 / 2 + 12, 0, "bigFont", _0xe203c3, 32).setOrigin(0, 0.5);
+    _0x4864cc.add([_0x3ae5dd, _0x15c0df]);
+    _0x5376fd.add(_0x4864cc);
+    const _0x232e51 = _0x1dce15 => {
+      _0x3ae5dd.setTexture("GJ_GameSheet03", _0x1dce15 ? "GJ_checkOn_001.png" : "GJ_checkOff_001.png");
+      this._expandHitArea(_0x3ae5dd, 2);
+      _0x2d04c4(_0x1dce15);
+    };
+    this._expandHitArea(_0x3ae5dd, 2);
+    this._makeBouncyButton(_0x3ae5dd, 0.7, () => {
+      _0x232e51(_0x3ae5dd.frame.name === "GJ_checkOff_001.png");
+    }, () => this._paused && !!this._pauseContainer);
+    _0x15c0df.setInteractive();
+    _0x15c0df.on("pointerdown", () => {
+      if (this._paused && this._pauseContainer) {
+        _0x232e51(_0x3ae5dd.frame.name === "GJ_checkOff_001.png");
+      }
+    });
+    return _0x4864cc;
   }
   _buildPauseOverlay() {
     const _0x13af33 = screenWidth / 2;
@@ -5601,6 +5692,20 @@ class xs extends Phaser.Scene {
       this._sfxVolume = _0x3224fb;
       localStorage.setItem("userSfxVol", _0x3224fb);
     });
+
+    this._noclipCheckbox = this._createPauseToggleButton(this._pauseContainer, _0x13af33 - 330, 570, "Noclip", window.noClip, value => {
+      window.noClip = value;
+    });
+
+    this._showHitboxesCheckbox = this._createPauseToggleButton(this._pauseContainer, _0x13af33 - 120, 570, "Hitboxes", window.showHitboxes, value => {
+      window.showHitboxes = value;
+      this._player.setShowHitboxes(value);
+    });
+
+    this._showPercentageCheckbox = this._createPauseToggleButton(this._pauseContainer, _0x13af33 + 130, 570, "Percentage", window.showPercentage, value => {
+      window.showPercentage = value;
+      this._percentageLabel.setVisible(value);
+    });
   }
   _buildInfoPopup() {
     if (this._infoPopup) {
@@ -5627,11 +5732,17 @@ class xs extends Phaser.Scene {
     const _0x22e4c7 = this.add.bitmapText(xPos, yPos, "goldFont", "Made by RobTop Games", 40).setOrigin(0.5, 0.5).setScale(0.6);
     this._infoPopup.add(_0x22e4c7);
     yPos += 60;
-    const _0x3cdf70a = this.add.bitmapText(xPos, yPos, "goldFont", "Modded by: AntiMatter, breadbb", 40).setOrigin(0.5, 0.5).setScale(0.6);
+    const _0x3cdf70a = this.add.bitmapText(xPos, yPos, "goldFont", "Modded by:", 40).setOrigin(0.5, 0.5).setScale(0.6);
     this._infoPopup.add(_0x3cdf70a);
+    yPos += 40;
+    const _0x3cdf70c = this.add.bitmapText(xPos, yPos, "goldFont", "AntiMatter, breadbb, bog, aloaf", 40).setOrigin(0.5, 0.5).setScale(0.6);
+    this._infoPopup.add(_0x3cdf70c);
     yPos += 30;
-    const _0x3cdf70b = this.add.bitmapText(xPos, yPos, "goldFont", "bog, aloaf, PinkDev, and arbstro", 40).setOrigin(0.5, 0.5).setScale(0.6);
+    const _0x3cdf70b = this.add.bitmapText(xPos, yPos, "goldFont", "PinkDev, t0nchi7, arbstro", 40).setOrigin(0.5, 0.5).setScale(0.6);
     this._infoPopup.add(_0x3cdf70b);
+    yPos += 30;
+    const _0x3cdf70d = this.add.bitmapText(xPos, yPos, "goldFont", " and rohanis0000", 40).setOrigin(0.5, 0.5).setScale(0.6);
+    this._infoPopup.add(_0x3cdf70d);
     yPos += 30;
     const _0x97b2a9 = this.add.text(xPos, 463, "© 2026 RobTop Games. All rights reserved.", {
       fontSize: "12px",
@@ -5830,20 +5941,36 @@ class xs extends Phaser.Scene {
         }
       });
     }
+    //icon stuff the threequel
     if (this._iconBtn) {
-      this._closeIconSelector && this._closeIconSelector(true);
-      this.tweens.killTweensOf(this._iconBtn);
-      this.tweens.add({
-        targets: this._iconBtn,
-        scale: 0.01,
-        duration: 200,
-        ease: "Quad.In",
-        onComplete: () => {
-          this._iconBtn.destroy();
-          this._iconBtn = null;
-        }
-      });
+  this._closeIconSelector && this._closeIconSelector(true);
+  this.tweens.killTweensOf(this._iconBtn);
+  this.tweens.add({
+    targets: this._iconBtn,
+    scale: 0.01,
+    duration: 200,
+    ease: "Quad.In",
+    onComplete: () => {
+      this._iconBtn.destroy();
+      this._iconBtn = null;
     }
+  });
+}
+  //creator stuff the threequel
+    if (this._creatorBtn) {
+  this._closeCreatorMenu && this._closeCreatorMenu(true);
+  this.tweens.killTweensOf(this._creatorBtn);
+  this.tweens.add({
+    targets: this._creatorBtn,
+    scale: 0.01,
+    duration: 200,
+    ease: "Quad.In",
+    onComplete: () => {
+      this._creatorBtn.destroy();
+      this._creatorBtn = null;
+    }
+  });
+}
     if (this._robLogo) {
       this.tweens.add({
         targets: this._robLogo,
@@ -5952,6 +6079,7 @@ class xs extends Phaser.Scene {
     } else if (gamemode == 2) {
       this._player.enterBallMode();
     } else if (gamemode == 3) {
+      //this._player.enterUFOMode();
     } else if (gamemode == 4) {
       this._player.enterWaveMode();
     }
@@ -6018,6 +6146,32 @@ class xs extends Phaser.Scene {
         this._downloadBtns[_0x1bdfae].setPosition(_0x285ef7 - _0x1bdfae * _0x23d03e, _0x4a8263);
       }
     }
+    if (this._iconBtn) {
+      this._iconBtn.x = (screenWidth / 2) - this._playBtn.width / 2 - 100 - (this._iconBtn.width * this._iconBtn.scaleX) / 2;
+      this.tweens.killTweensOf(this._iconBtn, "y");
+      this._iconBtn.y = 320;
+      this.tweens.add({
+        targets: this._iconBtn,
+        y: 324,
+        duration: 750,
+        ease: "Quad.InOut",
+        yoyo: true,
+        repeat: -1
+      });
+    }
+    if (this._creatorBtn) {
+      this._creatorBtn.x = (screenWidth / 2) + this._playBtn.width / 2 + 100 + (this._creatorBtn.width * this._creatorBtn.scaleX) / 2;
+      this.tweens.killTweensOf(this._creatorBtn, "y");
+      this._creatorBtn.y = 320;
+      this.tweens.add({
+        targets: this._creatorBtn,
+        y: 324,
+        duration: 750,
+        ease: "Quad.InOut",
+        yoyo: true,
+        repeat: -1
+      });
+    }
   }
   _positionAttemptsLabel() {
     let _0xdbdd91 = this._cameraX + screenWidth / 2;
@@ -6055,22 +6209,6 @@ class xs extends Phaser.Scene {
     this._level.resetColorTriggers();
     this._level.resetEnterEffectTriggers();
     this._level.resetMoveTriggers();
-    this._level.resetOpacityTriggers();
-    this._level.resetToggleTriggers();
-    this._level.resetPulseTriggers();
-    this._level.resetRotateTriggers();
-    for (let _grpId in this._level._groupSprites) {
-      for (let _s of this._level._groupSprites[_grpId]) {
-        if (_s) { _s.setAlpha(1); _s.setVisible(true); }
-      }
-    }
-    if (this._level._groupColliders) {
-      for (let _grpId in this._level._groupColliders) {
-        for (let _c of this._level._groupColliders[_grpId]) {
-          if (_c) _c._disabled = false;
-        }
-      }
-    }
     this._level.resetVisibility();
     if (this._orbGfx) { this._orbGfx.clear(); }
     this._colorManager.reset();
@@ -6081,8 +6219,9 @@ class xs extends Phaser.Scene {
       this._pauseContainer.destroy();
       this._pauseContainer = null;
     }
+    this._noclipCheckbox = null;
+    this._showHitboxesCheckbox = null;
     this._pauseBtn.setVisible(true).setAlpha(75 / 255);
-    this._percentageLabel.setVisible(true).setDepth(100);
     this._attemptsLabel.setText("Attempt " + this._attempts);
     this._attemptsLabel.setVisible(true);
     this._positionAttemptsLabel();
@@ -6092,6 +6231,7 @@ class xs extends Phaser.Scene {
     } else if (gamemode == 2) {
       this._player.enterBallMode();
     } else if (gamemode == 3) {
+      //this._player.enterUFOMode();
     } else if (gamemode == 4) {
       this._player.enterWaveMode();
     }
@@ -6117,6 +6257,8 @@ class xs extends Phaser.Scene {
     if (this._paused && this._pauseContainer) {
       this._pauseContainer.destroy();
       this._pauseContainer = null;
+      this._noclipCheckbox = null;
+      this._showHitboxesCheckbox = null;
       this._buildPauseOverlay();
     }
     this._level.resizeScreen();
@@ -6204,18 +6346,25 @@ class xs extends Phaser.Scene {
     if (this._menuActive) {
       if ((this._spaceKey.isDown || this._upKey.isDown || this._wKey.isDown) && !this._spaceWasDown) {
         this._spaceWasDown = true;
-        if (!this._levelSelectOverlay) {
-          this._openLevelSelect();
-        }
+        this._audio.playEffect("playSound_01", {
+          volume: 1 
+        });
+        this._levelLabel.setVisible(false)
+        this._leftBtn.setVisible(false)
+        this._rightBtn.setVisible(false)
+        this._percentageLabel.setVisible(window.showPercentage)
+        this._startGame();
         return;
       }
-      if (this._leftKey.isDown || this._rightKey.isDown || this._aKey.isDown || this._dKey.isDown) {
-        if (this._leftKey.isDown || this._aKey.isDown) {
-          window.leftbuttoncallback();
-        } else {
-          window.rightbuttoncallback();
+      const _arrowLeft = this._leftKey.isDown || this._aKey.isDown;
+      const _arrowRight = this._rightKey.isDown || this._dKey.isDown;
+      if ((_arrowLeft || _arrowRight) && !this._arrowWasDown) {
+        if (this._levelSelectOverlay) {
+          if (_arrowLeft) window.leftbuttoncallback();
+          else window.rightbuttoncallback();
         }
       }
+      this._arrowWasDown = _arrowLeft || _arrowRight;
       this._spaceWasDown = this._spaceKey.isDown || this._upKey.isDown || this._wKey.isDown;
       const _0x1e9cf4 = Math.min(_0xaf2ffd / 1000 * 60, 2);
       const _0x2e19f3 = 0.25;
@@ -6326,6 +6475,7 @@ class xs extends Phaser.Scene {
         this._lastPercent = Math.min(99, Math.max(0, Math.floor(_0x169d53 / _0x435587 * 100)));
         if (this._lastPercent > this._bestPercent) {
           this._bestPercent = this._lastPercent;
+          localStorage.setItem("bestPercent_" + (window.currentlevel[2] || "level_1"), this._bestPercent);
           this._hadNewBest = true;
           this._showNewBest();
         }
@@ -6480,63 +6630,6 @@ if (!this._state.isFlying && !this._state.isWave) {
     this._colorManager.step(_0xaf2ffd / 1000);
     this._bg.setTint(this._colorManager.getHex(fs));
     this._level.setGroundColor(this._colorManager.getHex(gs));
-    this._level.applyChannelColors(this._colorManager);
-    for (let _opTrig of this._level.checkOpacityTriggers(_0x5464ab)) {
-      let _grp = _opTrig.targetGroup;
-      let _targetAlpha = _opTrig.opacity;
-      let _dur = _opTrig.duration;
-      if (_grp > 0 && this._level._groupSprites[_grp]) {
-        let _sprites = this._level._groupSprites[_grp];
-        if (_dur <= 0) {
-          for (let _s of _sprites) { if (_s) _s.setAlpha(_targetAlpha); }
-        } else {
-          for (let _s of _sprites) {
-            if (_s) this.tweens.add({ targets: _s, alpha: _targetAlpha, duration: _dur * 1000 });
-          }
-        }
-      }
-    }
-    for (let _togTrig of this._level.checkToggleTriggers(_0x5464ab)) {
-      let _grp = _togTrig.targetGroup;
-      let _show = _togTrig.activate;
-      if (_grp > 0 && this._level._groupSprites[_grp]) {
-        for (let _s of this._level._groupSprites[_grp]) {
-          if (_s) _s.setVisible(_show);
-        }
-      }
-      if (_grp > 0 && this._level._groupColliders[_grp]) {
-        for (let _c of this._level._groupColliders[_grp]) {
-          if (_c) _c._disabled = !_show;
-        }
-      }
-    }
-    for (let _pTrig of this._level.checkPulseTriggers(_0x5464ab)) {
-      let ch = _pTrig.targetChannel;
-      let baseCol = this._colorManager.getColor(ch);
-      this._level._activePulses.push({
-        targetChannel: ch,
-        isGroup: _pTrig.isGroup,
-        r: _pTrig.r, g: _pTrig.g, b: _pTrig.b,
-        baseR: baseCol.r, baseG: baseCol.g, baseB: baseCol.b,
-        fadeIn: _pTrig.fadeIn, hold: _pTrig.hold, fadeOut: _pTrig.fadeOut,
-        elapsed: 0
-      });
-    }
-    for (let _rTrig of this._level.checkRotateTriggers(_0x5464ab)) {
-      let grp = _rTrig.targetGroup;
-      let startAngle = 0;
-      let sprites = this._level._groupSprites[grp];
-      if (sprites && sprites[0]) startAngle = sprites[0].angle || 0;
-      this._level._activeRotations.push({
-        targetGroup: grp,
-        degrees: _rTrig.degrees,
-        duration: _rTrig.duration,
-        startAngle: startAngle,
-        elapsed: 0
-      });
-    }
-    this._level.stepPulses(_0xaf2ffd / 1000);
-    this._level.stepRotations(_0xaf2ffd / 1000, this);
     this._level.updateVisibility(this._cameraX);
     this._level.checkEnterEffectTriggers(_0x5464ab);
     this._level.applyEnterEffects(this._cameraX);
@@ -6615,6 +6708,9 @@ _applyMirrorEffect() {
     this._player.playEndAnimation(this._level.endXPos, () => this._levelComplete(), this._endPortalGameY);
   }
   _levelComplete() {
+    this._bestPercent = 100;
+    localStorage.setItem("bestPercent_" + (window.currentlevel[2] || "level_1"), 100);
+
     const _0x356782 = this._level.endXPos - this._cameraX;
     const _0x2d967b = b(this._endPortalGameY) + this._cameraY;
     for (let _0x481f7c = 0; _0x481f7c < 5; _0x481f7c++) {
@@ -7071,7 +7167,7 @@ const Ss = {
   render: {
     powerPreference: "high-performance"
   },
-scale: {
+  scale: {
     mode: Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH
   },
